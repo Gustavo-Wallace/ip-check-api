@@ -1,5 +1,6 @@
 package br.com.gustavo.ip_check_api.services;
 
+import java.net.InetAddress;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -17,6 +18,8 @@ public class IpAddressService {
     private final IpAddressRepository ipAddressRepository;
 
     public IpAddressResponseDTO create(IpAddressRequestDTO requestDTO) {
+        validateIpAddress(requestDTO.getAddress());
+
         IpAddress ipAddress = IpAddress.builder()
                 .address(requestDTO.getAddress())
                 .description(requestDTO.getDescription())
@@ -32,6 +35,14 @@ public class IpAddressService {
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();
+    }
+
+    private void validateIpAddress(String address) {
+        try {
+            InetAddress.getByName(address);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid IP address");
+        }
     }
 
     private IpAddressResponseDTO toResponseDTO(IpAddress ipAddress) {
