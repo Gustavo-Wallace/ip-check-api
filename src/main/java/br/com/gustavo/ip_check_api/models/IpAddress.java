@@ -28,7 +28,7 @@ public class IpAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 45)
+    @Column(nullable = false, unique = true, length = 45)
     private String address;
 
     @Column(length = 255)

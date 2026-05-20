@@ -20,6 +20,10 @@ public class IpAddressService {
     public IpAddressResponseDTO create(IpAddressRequestDTO requestDTO) {
         validateIpAddress(requestDTO.getAddress());
 
+        if (ipAddressRepository.findByAddress(requestDTO.getAddress()).isPresent()) {
+            throw new IllegalArgumentException("IP address already registered");
+        }
+
         IpAddress ipAddress = IpAddress.builder()
                 .address(requestDTO.getAddress())
                 .description(requestDTO.getDescription())
@@ -29,7 +33,7 @@ public class IpAddressService {
 
         return toResponseDTO(savedIpAddress);
     }
-
+    
     public List<IpAddressResponseDTO> findAll() {
         return ipAddressRepository.findAll()
                 .stream()
