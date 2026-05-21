@@ -2,6 +2,7 @@ package br.com.gustavo.ip_check_api.models;
 
 import java.time.LocalDateTime;
 
+import br.com.gustavo.ip_check_api.enums.AnalysisSource;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,8 +54,9 @@ public class IpAnalysis {
     @Column(nullable = false, length = 20)
     private RiskLevel riskLevel;
 
-    @Column(nullable = false, length = 100)
-    private String source;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private AnalysisSource source;
 
     @Column(nullable = false)
     private LocalDateTime analyzedAt;

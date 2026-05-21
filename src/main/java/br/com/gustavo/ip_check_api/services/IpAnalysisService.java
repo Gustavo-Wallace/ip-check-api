@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
+import br.com.gustavo.ip_check_api.enums.AnalysisSource;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.models.IpAnalysis;
 import br.com.gustavo.ip_check_api.repositories.IpAnalysisRepository;
@@ -37,7 +38,7 @@ public class IpAnalysisService {
                 .datacenter(datacenter)
                 .anonymous(anonymous)
                 .riskLevel(riskLevel)
-                .source("INTERNAL_RULES")
+                .source(AnalysisSource.INTERNAL_RULES)
                 .build();
 
         IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
@@ -124,7 +125,7 @@ public class IpAnalysisService {
                 .datacenter(datacenter)
                 .anonymous(anonymous)
                 .riskLevel(riskLevel)
-                .source("MANUAL_SIMULATION")
+                .source(AnalysisSource.MANUAL_SIMULATION)
                 .build();
 
         IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);

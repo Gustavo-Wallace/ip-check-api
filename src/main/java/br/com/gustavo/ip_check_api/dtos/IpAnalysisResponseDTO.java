@@ -2,6 +2,7 @@ package br.com.gustavo.ip_check_api.dtos;
 
 import java.time.LocalDateTime;
 
+import br.com.gustavo.ip_check_api.enums.AnalysisSource;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,6 @@ public class IpAnalysisResponseDTO {
     private Boolean anonymous;
 
     private RiskLevel riskLevel;
-    private String source;
+    private AnalysisSource source;
     private LocalDateTime analyzedAt;
 }
