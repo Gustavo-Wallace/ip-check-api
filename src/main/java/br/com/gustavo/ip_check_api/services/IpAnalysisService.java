@@ -20,14 +20,22 @@ public class IpAnalysisService {
     public IpAnalysisResponseDTO analyze(String address) {
         IpValidator.validate(address);
 
+        Boolean vpn = false;
+        Boolean proxy = false;
+        Boolean tor = false;
+        Boolean datacenter = isProbablyDatacenter(address);
+        Boolean anonymous = vpn || proxy || tor;
+
+        RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
+
         IpAnalysis ipAnalysis = IpAnalysis.builder()
                 .address(address)
-                .vpn(false)
-                .proxy(false)
-                .tor(false)
-                .datacenter(false)
-                .anonymous(false)
-                .riskLevel(RiskLevel.LOW)
+                .vpn(vpn)
+                .proxy(proxy)
+                .tor(tor)
+                .datacenter(datacenter)
+                .anonymous(anonymous)
+                .riskLevel(riskLevel)
                 .source("INTERNAL_RULES")
                 .build();
 
@@ -58,5 +66,41 @@ public class IpAnalysisService {
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();
+    }
+
+    private RiskLevel calculateRiskLevel(
+            Boolean vpn,
+            Boolean proxy,
+            Boolean tor,
+            Boolean datacenter,
+            Boolean anonymous
+    ) {
+        if (Boolean.TRUE.equals(tor)) {
+            return RiskLevel.CRITICAL;
+        }
+
+        if (Boolean.TRUE.equals(anonymous) && Boolean.TRUE.equals(proxy)) {
+            return RiskLevel.HIGH;
+        }
+
+        if (Boolean.TRUE.equals(vpn) && Boolean.TRUE.equals(proxy)) {
+            return RiskLevel.HIGH;
+        }
+
+        if (Boolean.TRUE.equals(vpn) || Boolean.TRUE.equals(proxy)) {
+            return RiskLevel.MEDIUM;
+        }
+
+        if (Boolean.TRUE.equals(datacenter)) {
+            return RiskLevel.ATTENTION;
+        }
+
+        return RiskLevel.LOW;
+    }
+
+    private Boolean isProbablyDatacenter(String address) {
+        return address.equals("8.8.8.8")
+                || address.equals("1.1.1.1")
+                || address.equals("9.9.9.9");
     }
 }
