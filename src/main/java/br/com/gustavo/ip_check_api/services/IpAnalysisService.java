@@ -2,6 +2,7 @@ package br.com.gustavo.ip_check_api.services;
 
 import org.springframework.stereotype.Service;
 
+import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.models.IpAnalysis;
@@ -103,4 +104,32 @@ public class IpAnalysisService {
                 || address.equals("1.1.1.1")
                 || address.equals("9.9.9.9");
     }
+
+    public IpAnalysisResponseDTO analyzeManually(String address, IpAnalysisManualRequestDTO requestDTO) {
+        IpValidator.validate(address);
+
+        Boolean vpn = Boolean.TRUE.equals(requestDTO.getVpn());
+        Boolean proxy = Boolean.TRUE.equals(requestDTO.getProxy());
+        Boolean tor = Boolean.TRUE.equals(requestDTO.getTor());
+        Boolean datacenter = Boolean.TRUE.equals(requestDTO.getDatacenter());
+        Boolean anonymous = vpn || proxy || tor;
+
+        RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
+
+        IpAnalysis ipAnalysis = IpAnalysis.builder()
+                .address(address)
+                .vpn(vpn)
+                .proxy(proxy)
+                .tor(tor)
+                .datacenter(datacenter)
+                .anonymous(anonymous)
+                .riskLevel(riskLevel)
+                .source("MANUAL_SIMULATION")
+                .build();
+
+        IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
+
+        return toResponseDTO(savedIpAnalysis);
+    }
+
 }
