@@ -9,6 +9,8 @@ import br.com.gustavo.ip_check_api.repositories.IpAnalysisRepository;
 import br.com.gustavo.ip_check_api.utils.IpValidator;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class IpAnalysisService {
@@ -17,7 +19,7 @@ public class IpAnalysisService {
 
     public IpAnalysisResponseDTO analyze(String address) {
         IpValidator.validate(address);
-        
+
         IpAnalysis ipAnalysis = IpAnalysis.builder()
                 .address(address)
                 .vpn(false)
@@ -47,5 +49,14 @@ public class IpAnalysisService {
                 .source(ipAnalysis.getSource())
                 .analyzedAt(ipAnalysis.getAnalyzedAt())
                 .build();
+    }
+
+    public List<IpAnalysisResponseDTO> findByAddress(String address) {
+        IpValidator.validate(address);
+
+        return ipAnalysisRepository.findByAddress(address)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 }
