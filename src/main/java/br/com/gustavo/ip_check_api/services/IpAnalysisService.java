@@ -6,6 +6,7 @@ import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.models.IpAnalysis;
 import br.com.gustavo.ip_check_api.repositories.IpAnalysisRepository;
+import br.com.gustavo.ip_check_api.utils.IpValidator;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -15,6 +16,8 @@ public class IpAnalysisService {
     private final IpAnalysisRepository ipAnalysisRepository;
 
     public IpAnalysisResponseDTO analyze(String address) {
+        IpValidator.validate(address);
+        
         IpAnalysis ipAnalysis = IpAnalysis.builder()
                 .address(address)
                 .vpn(false)

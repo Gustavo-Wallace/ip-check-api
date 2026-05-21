@@ -1,6 +1,5 @@
 package br.com.gustavo.ip_check_api.services;
 
-import java.net.InetAddress;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -9,6 +8,7 @@ import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
 import br.com.gustavo.ip_check_api.models.IpAddress;
 import br.com.gustavo.ip_check_api.repositories.IpAddressRepository;
+import br.com.gustavo.ip_check_api.utils.IpValidator;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,7 +18,7 @@ public class IpAddressService {
     private final IpAddressRepository ipAddressRepository;
 
     public IpAddressResponseDTO create(IpAddressRequestDTO requestDTO) {
-        validateIpAddress(requestDTO.getAddress());
+        IpValidator.validate(requestDTO.getAddress());
 
         if (ipAddressRepository.findByAddress(requestDTO.getAddress()).isPresent()) {
             throw new IllegalArgumentException("IP address already registered");
@@ -39,14 +39,6 @@ public class IpAddressService {
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();
-    }
-
-    private void validateIpAddress(String address) {
-        try {
-            InetAddress.getByName(address);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid IP address");
-        }
     }
 
     private IpAddressResponseDTO toResponseDTO(IpAddress ipAddress) {
