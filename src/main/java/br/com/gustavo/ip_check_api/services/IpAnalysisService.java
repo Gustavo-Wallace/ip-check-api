@@ -2,6 +2,8 @@ package br.com.gustavo.ip_check_api.services;
 
 import org.springframework.stereotype.Service;
 
+import br.com.gustavo.ip_check_api.clients.IpIntelligenceClient;
+import br.com.gustavo.ip_check_api.dtos.ExternalIpCheckResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.enums.AnalysisSource;
@@ -18,14 +20,17 @@ import java.util.List;
 public class IpAnalysisService {
 
     private final IpAnalysisRepository ipAnalysisRepository;
+    private final IpIntelligenceClient ipIntelligenceClient;
 
     public IpAnalysisResponseDTO analyze(String address) {
         IpValidator.validate(address);
 
-        Boolean vpn = false;
-        Boolean proxy = false;
-        Boolean tor = false;
-        Boolean datacenter = isProbablyDatacenter(address);
+        ExternalIpCheckResponseDTO externalResponse = ipIntelligenceClient.check(address);
+
+        Boolean vpn = Boolean.TRUE.equals(externalResponse.getVpn());
+        Boolean proxy = Boolean.TRUE.equals(externalResponse.getProxy());
+        Boolean tor = Boolean.TRUE.equals(externalResponse.getTor());
+        Boolean datacenter = Boolean.TRUE.equals(externalResponse.getDatacenter());
         Boolean anonymous = vpn || proxy || tor;
 
         RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
@@ -38,7 +43,7 @@ public class IpAnalysisService {
                 .datacenter(datacenter)
                 .anonymous(anonymous)
                 .riskLevel(riskLevel)
-                .source(AnalysisSource.INTERNAL_RULES)
+                .source(AnalysisSource.EXTERNAL_API)
                 .build();
 
         IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
@@ -98,12 +103,6 @@ public class IpAnalysisService {
         }
 
         return RiskLevel.LOW;
-    }
-
-    private Boolean isProbablyDatacenter(String address) {
-        return address.equals("8.8.8.8")
-                || address.equals("1.1.1.1")
-                || address.equals("9.9.9.9");
     }
 
     public IpAnalysisResponseDTO analyzeManually(String address, IpAnalysisManualRequestDTO requestDTO) {
