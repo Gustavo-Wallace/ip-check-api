@@ -1,6 +1,9 @@
 package br.com.gustavo.ip_check_api.services;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -14,6 +17,8 @@ import br.com.gustavo.ip_check_api.models.IpAnalysis;
 import br.com.gustavo.ip_check_api.repositories.IpAnalysisRepository;
 import br.com.gustavo.ip_check_api.utils.IpValidator;
 import lombok.RequiredArgsConstructor;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -137,6 +142,20 @@ public class IpAnalysisService {
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();
+    }
+
+    public Map<RiskLevel, Long> countByRiskLevel() {
+        Map<RiskLevel, Long> report = ipAnalysisRepository.findAll()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        IpAnalysis::getRiskLevel,
+                        Collectors.counting()
+                ));
+
+        Arrays.stream(RiskLevel.values())
+                .forEach(riskLevel -> report.putIfAbsent(riskLevel, 0L));
+
+        return report;
     }
 
 }

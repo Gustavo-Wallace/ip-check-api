@@ -1,6 +1,7 @@
 package br.com.gustavo.ip_check_api.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
+import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.services.IpAnalysisService;
 import lombok.RequiredArgsConstructor;
 
@@ -42,5 +44,10 @@ public class IpAnalysisController {
     @GetMapping("/analyses")
     public List<IpAnalysisResponseDTO> findAll() {
         return ipAnalysisService.findAll();
+    }
+
+    @GetMapping("/analyses/report/risk-level")
+    public Map<RiskLevel, Long> countByRiskLevel() {
+        return ipAnalysisService.countByRiskLevel();
     }
 }
