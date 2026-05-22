@@ -1,5 +1,7 @@
 package br.com.gustavo.ip_check_api.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import br.com.gustavo.ip_check_api.clients.IpIntelligenceClient;
@@ -12,8 +14,6 @@ import br.com.gustavo.ip_check_api.models.IpAnalysis;
 import br.com.gustavo.ip_check_api.repositories.IpAnalysisRepository;
 import br.com.gustavo.ip_check_api.utils.IpValidator;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -130,6 +130,13 @@ public class IpAnalysisService {
         IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
 
         return toResponseDTO(savedIpAnalysis);
+    }
+
+    public List<IpAnalysisResponseDTO> findAll() {
+        return ipAnalysisRepository.findAll()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
 }

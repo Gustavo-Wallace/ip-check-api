@@ -1,5 +1,7 @@
 package br.com.gustavo.ip_check_api.controllers;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,8 +13,6 @@ import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.services.IpAnalysisService;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/ips")
@@ -37,5 +37,10 @@ public class IpAnalysisController {
             @RequestBody IpAnalysisManualRequestDTO requestDTO
     ) {
         return ipAnalysisService.analyzeManually(address, requestDTO);
+    }
+
+    @GetMapping("/analyses")
+    public List<IpAnalysisResponseDTO> findAll() {
+        return ipAnalysisService.findAll();
     }
 }
