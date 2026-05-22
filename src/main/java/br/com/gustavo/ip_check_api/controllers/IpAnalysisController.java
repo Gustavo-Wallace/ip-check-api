@@ -50,4 +50,11 @@ public class IpAnalysisController {
     public Map<RiskLevel, Long> countByRiskLevel() {
         return ipAnalysisService.countByRiskLevel();
     }
+
+    @GetMapping("/analyses/report/anonymity")
+    public Map<String, Long> countByAnonymityIndicators() {
+        return ipAnalysisService.countByAnonymityIndicators();
+    }
+
+    
 }

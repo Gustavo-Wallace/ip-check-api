@@ -158,4 +158,36 @@ public class IpAnalysisService {
         return report;
     }
 
+    public Map<String, Long> countByAnonymityIndicators() {
+        List<IpAnalysis> analyses = ipAnalysisRepository.findAll();
+
+        long vpnCount = analyses.stream()
+                .filter(analysis -> Boolean.TRUE.equals(analysis.getVpn()))
+                .count();
+
+        long proxyCount = analyses.stream()
+                .filter(analysis -> Boolean.TRUE.equals(analysis.getProxy()))
+                .count();
+
+        long torCount = analyses.stream()
+                .filter(analysis -> Boolean.TRUE.equals(analysis.getTor()))
+                .count();
+
+        long datacenterCount = analyses.stream()
+                .filter(analysis -> Boolean.TRUE.equals(analysis.getDatacenter()))
+                .count();
+
+        long anonymousCount = analyses.stream()
+                .filter(analysis -> Boolean.TRUE.equals(analysis.getAnonymous()))
+                .count();
+
+        return Map.of(
+                "vpn", vpnCount,
+                "proxy", proxyCount,
+                "tor", torCount,
+                "datacenter", datacenterCount,
+                "anonymous", anonymousCount
+        );
+    }
+
 }
