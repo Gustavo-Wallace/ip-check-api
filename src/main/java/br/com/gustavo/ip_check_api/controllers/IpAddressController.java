@@ -47,6 +47,15 @@ public class IpAddressController {
         return ipAddressService.findAll();
     }
 
+    @GetMapping("/active")
+    @Operation(
+            summary = "List active IP addresses",
+            description = "Returns only active registered IP addresses."
+    )
+    public List<IpAddressResponseDTO> findAllActive() {
+        return ipAddressService.findAllActive();
+    }
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Find IP address by ID",

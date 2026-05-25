@@ -135,6 +135,15 @@ curl -X PATCH http://localhost:8080/ips/1/activate
 GET /ips
 ```
 
+### List Active IP Addresses
+```http
+GET /ips/active
+```
+Example:
+```bash
+curl http://localhost:8080/ips/active
+```
+
 ### Find IP Address by ID
 ```http
 Get /ips/{id}

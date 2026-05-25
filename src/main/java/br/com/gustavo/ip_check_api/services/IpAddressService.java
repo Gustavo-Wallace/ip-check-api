@@ -81,4 +81,11 @@ public class IpAddressService {
         return toResponseDTO(updatedIpAddress);
     }
 
+    public List<IpAddressResponseDTO> findAllActive() {
+        return ipAddressRepository.findByActiveTrue()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
 }
