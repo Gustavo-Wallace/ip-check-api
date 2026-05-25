@@ -1,7 +1,8 @@
 package br.com.gustavo.ip_check_api.clients;
 
-import br.com.gustavo.ip_check_api.dtos.ExternalIpCheckResponseDTO;
 import org.springframework.stereotype.Component;
+
+import br.com.gustavo.ip_check_api.dtos.ExternalIpCheckResponseDTO;
 
 @Component
 public class MockIpIntelligenceClient implements IpIntelligenceClient {
