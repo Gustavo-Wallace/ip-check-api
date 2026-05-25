@@ -112,6 +112,15 @@ Response:
 }
 ```
 
+### Deactivate IP Address
+```http
+PATCH /ips/{id}/deactivate
+```
+Example:
+```bash
+curl -X PATCH http://localhost:8080/ips/1/deactivate
+```
+
 ### List IP Addresses
 ```http
 GET /ips

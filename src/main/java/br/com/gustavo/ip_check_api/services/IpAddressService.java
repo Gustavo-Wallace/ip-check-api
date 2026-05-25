@@ -59,4 +59,15 @@ public class IpAddressService {
         return toResponseDTO(ipAddress);
     }
 
+    public IpAddressResponseDTO deactivate(Long id) {
+        IpAddress ipAddress = ipAddressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("IP address not found"));
+
+        ipAddress.setActive(false);
+
+        IpAddress updatedIpAddress = ipAddressRepository.save(ipAddress);
+
+        return toResponseDTO(updatedIpAddress);
+    }
+
 }
