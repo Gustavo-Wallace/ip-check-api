@@ -50,4 +50,13 @@ public class IpAddressService {
                 .createdAt(ipAddress.getCreatedAt())
                 .build();
     }
+
+    public IpAddressResponseDTO findById(Long id) {
+        IpAddress ipAddress = ipAddressRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("IP address not found"));
+
+        return toResponseDTO(ipAddress);
+    }
+
+    
 }

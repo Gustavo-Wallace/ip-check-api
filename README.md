@@ -117,6 +117,15 @@ Response:
 GET /ips
 ```
 
+### Find IP Address by ID
+```http
+Get /ips/{id}
+```
+Example:
+```bash
+curl http://localhost:8080/ips/1
+```
+
 ### Analyze IP Address
 ```http
 POST /ips/{address}/analyze`

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,5 +44,14 @@ public class IpAddressController {
     )
     public List<IpAddressResponseDTO> findAll() {
         return ipAddressService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    @Operation(
+            summary = "Find IP address by ID",
+            description = "Returns a registered IP address by its ID."
+    )
+    public IpAddressResponseDTO findById(@PathVariable Long id) {
+        return ipAddressService.findById(id);
     }
 }
