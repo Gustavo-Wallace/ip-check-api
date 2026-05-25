@@ -177,12 +177,12 @@ GET /ips/{address}/analyses
 
 ### List All Analyses
 ```http
-Get /ips/analyses
+Get /analyses
 ```
 
 ### Risk Level Report
 ```http
-GET /ips/analyses/report/risk-level
+GET /analyses/report/risk-level
 ```
 Response:
 ```JSON
@@ -197,7 +197,7 @@ Response:
 
 ### Anonymity Indicators Report
 ```http
-GET /ips/analyses/report/anonymity
+GET /analyses/report/anonymity
 ```
 Response:
 ```JSON
