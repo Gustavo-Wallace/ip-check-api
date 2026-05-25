@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
+import br.com.gustavo.ip_check_api.exceptions.ResourceNotFoundException;
 import br.com.gustavo.ip_check_api.models.IpAddress;
 import br.com.gustavo.ip_check_api.repositories.IpAddressRepository;
 import br.com.gustavo.ip_check_api.utils.IpValidator;
@@ -53,10 +54,9 @@ public class IpAddressService {
 
     public IpAddressResponseDTO findById(Long id) {
         IpAddress ipAddress = ipAddressRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("IP address not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("IP address not found"));
 
         return toResponseDTO(ipAddress);
     }
 
-    
 }
