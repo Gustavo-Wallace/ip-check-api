@@ -121,6 +121,15 @@ Example:
 curl -X PATCH http://localhost:8080/ips/1/deactivate
 ```
 
+### Activate IP Address
+```http
+PATCH /ips/{id}/activate
+```
+Example:
+```bash
+curl -X PATCH http://localhost:8080/ips/1/activate
+```
+
 ### List IP Addresses
 ```http
 GET /ips

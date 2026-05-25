@@ -70,4 +70,15 @@ public class IpAddressService {
         return toResponseDTO(updatedIpAddress);
     }
 
+    public IpAddressResponseDTO activate(Long id) {
+        IpAddress ipAddress = ipAddressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("IP address not found"));
+
+        ipAddress.setActive(true);
+
+        IpAddress updatedIpAddress = ipAddressRepository.save(ipAddress);
+
+        return toResponseDTO(updatedIpAddress);
+    }
+
 }

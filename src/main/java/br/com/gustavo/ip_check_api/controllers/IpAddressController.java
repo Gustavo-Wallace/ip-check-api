@@ -64,5 +64,14 @@ public class IpAddressController {
     public IpAddressResponseDTO deactivate(@PathVariable Long id) {
         return ipAddressService.deactivate(id);
     }
-    
+
+    @PatchMapping("/{id}/activate")
+    @Operation(
+            summary = "Activate IP address",
+            description = "Activates a previously deactivated IP address."
+    )
+    public IpAddressResponseDTO activate(@PathVariable Long id) {
+        return ipAddressService.activate(id);
+    }
+
 }
