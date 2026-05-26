@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import br.com.gustavo.ip_check_api.clients.IpIntelligenceClient;
+import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
 import br.com.gustavo.ip_check_api.dtos.BatchAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.ExternalIpCheckResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
@@ -202,6 +203,59 @@ public class IpAnalysisService {
                                 .errorCount(0)
                                 .analyses(analyses)
                                 .build();
+        }
+
+        public AnalysisSummaryReportDTO getSummaryReport() {
+                List<IpAnalysis> analyses = ipAnalysisRepository.findAll();
+
+                long anonymousCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getAnonymous()))
+                                .count();
+
+                long vpnCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getVpn()))
+                                .count();
+
+                long proxyCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getProxy()))
+                                .count();
+
+                long torCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getTor()))
+                                .count();
+
+                long datacenterCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getDatacenter()))
+                                .count();
+
+                RiskLevel highestRiskLevel = analyses.stream()
+                                .map(IpAnalysis::getRiskLevel)
+                                .max(this::compareRiskLevel)
+                                .orElse(RiskLevel.LOW);
+
+                return AnalysisSummaryReportDTO.builder()
+                                .totalAnalyses((long) analyses.size())
+                                .anonymousCount(anonymousCount)
+                                .vpnCount(vpnCount)
+                                .proxyCount(proxyCount)
+                                .torCount(torCount)
+                                .datacenterCount(datacenterCount)
+                                .highestRiskLevel(highestRiskLevel)
+                                .build();
+        }
+
+        private int compareRiskLevel(RiskLevel first, RiskLevel second) {
+                return Integer.compare(getRiskWeight(first), getRiskWeight(second));
+        }
+
+        private int getRiskWeight(RiskLevel riskLevel) {
+                return switch (riskLevel) {
+                        case LOW -> 1;
+                        case ATTENTION -> 2;
+                        case MEDIUM -> 3;
+                        case HIGH -> 4;
+                        case CRITICAL -> 5;
+                };
         }
 
 }

@@ -228,6 +228,27 @@ GET /ips/{address}/analyses
 Get /analyses
 ```
 
+### Analysis Summary Report
+```http
+GET /analyses/report/summary
+```
+Example:
+```bash
+curl http://localhost:8080/analyses/report/summary
+```
+Response:
+```JSON
+{
+  "totalAnalyses": 2,
+  "anonymousCount": 1,
+  "vpnCount": 0,
+  "proxyCount": 0,
+  "torCount": 1,
+  "datacenterCount": 1,
+  "highestRiskLevel": "CRITICAL"
+}
+```
+
 ### Risk Level Report
 ```http
 GET /analyses/report/risk-level
