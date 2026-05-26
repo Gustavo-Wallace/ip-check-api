@@ -306,6 +306,23 @@ Example with sorting:
 curl "http://localhost:8080/analyses/page?page=0&size=5&sort=analyzedAt,desc"
 ```
 
+### IP Intelligence Configuration
+```http
+GET /ip-intelligence/config
+```
+Example:
+```bash
+curl http://localhost:8080/ip-intelligence/config
+```
+Response:
+```JSON
+{
+  "provider": "mock",
+  "baseUrlConfigured": "false",
+  "apiKeyConfigured": "false"
+}
+```
+
 ## Running the Project
 
 On machines with Java properly configured:
