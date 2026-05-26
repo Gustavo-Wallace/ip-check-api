@@ -24,35 +24,30 @@ public class IpAnalysisController {
 
     private final IpAnalysisService ipAnalysisService;
 
+    @PostMapping("/active/analyze")
+    @Operation(summary = "Analyze all active IP addresses", description = "Analyzes all active registered IP addresses and stores each analysis result.")
+    public List<IpAnalysisResponseDTO> analyzeActiveIpAddresses() {
+        return ipAnalysisService.analyzeActiveIpAddresses();
+    }
+
     @PostMapping("/{address}/analyze")
-    @Operation(
-            summary = "Analyze an IP address",
-            description = "Analyzes an IP address using the configured IP intelligence client."
-    )
+    @Operation(summary = "Analyze an IP address", description = "Analyzes an IP address using the configured IP intelligence client.")
     public IpAnalysisResponseDTO analyze(@PathVariable String address) {
         return ipAnalysisService.analyze(address);
     }
 
     @GetMapping("/{address}/analyses")
-    @Operation(
-            summary = "List analyses by IP address",
-            description = "Returns the analysis history for a specific IP address."
-    )
+    @Operation(summary = "List analyses by IP address", description = "Returns the analysis history for a specific IP address.")
     public List<IpAnalysisResponseDTO> findByAddress(@PathVariable String address) {
         return ipAnalysisService.findByAddress(address);
     }
 
     @PostMapping("/{address}/analyze/manual")
-    @Operation(
-            summary = "Manually simulate an IP analysis",
-            description = "Allows manual simulation of VPN, proxy, Tor and datacenter indicators."
-    )
+    @Operation(summary = "Manually simulate an IP analysis", description = "Allows manual simulation of VPN, proxy, Tor and datacenter indicators.")
     public IpAnalysisResponseDTO analyzeManually(
             @PathVariable String address,
-            @RequestBody IpAnalysisManualRequestDTO requestDTO
-    ) {
+            @RequestBody IpAnalysisManualRequestDTO requestDTO) {
         return ipAnalysisService.analyzeManually(address, requestDTO);
     }
-
 
 }

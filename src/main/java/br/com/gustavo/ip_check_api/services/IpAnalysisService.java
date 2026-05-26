@@ -13,7 +13,9 @@ import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.enums.AnalysisSource;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
+import br.com.gustavo.ip_check_api.models.IpAddress;
 import br.com.gustavo.ip_check_api.models.IpAnalysis;
+import br.com.gustavo.ip_check_api.repositories.IpAddressRepository;
 import br.com.gustavo.ip_check_api.repositories.IpAnalysisRepository;
 import br.com.gustavo.ip_check_api.utils.IpValidator;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class IpAnalysisService {
 
     private final IpAnalysisRepository ipAnalysisRepository;
     private final IpIntelligenceClient ipIntelligenceClient;
+    private final IpAddressRepository ipAddressRepository;
 
     public IpAnalysisResponseDTO analyze(String address) {
         IpValidator.validate(address);
@@ -189,5 +192,13 @@ public class IpAnalysisService {
                 "anonymous", anonymousCount
         );
     }
+
+        public List<IpAnalysisResponseDTO> analyzeActiveIpAddresses() {
+        return ipAddressRepository.findByActiveTrue()
+                .stream()
+                .map(IpAddress::getAddress)
+                .map(this::analyze)
+                .toList();
+        }
 
 }

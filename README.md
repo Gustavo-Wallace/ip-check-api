@@ -94,13 +94,6 @@ Request:
   "description": "Google DNS"
 }
 ```
-Request:
-```JSON
-{
-  "address": "8.8.8.8",
-  "description": "Google DNS"
-}
-```
 Response:
 ```JSON
 {
@@ -205,6 +198,16 @@ Response:
   "analyzedAt": "2026-05-20T13:45:00"
 }
 ```
+
+### Analyze All Active IP Addresses
+```http
+POST /ips/active/analyze
+```
+Example:
+```bash
+curl -X POST http://localhost:8080/ips/active/analyze
+```
+This endpoint analyzes all active registered IP addresses and stores the analysis history.
 
 ### List Analyses by IP
 ```http
