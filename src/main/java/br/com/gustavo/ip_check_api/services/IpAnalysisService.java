@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import br.com.gustavo.ip_check_api.clients.IpIntelligenceClient;
 import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
@@ -272,6 +274,11 @@ public class IpAnalysisService {
                         case HIGH -> 4;
                         case CRITICAL -> 5;
                 };
+        }
+
+        public Page<IpAnalysisResponseDTO> findAllPaged(Pageable pageable) {
+                return ipAnalysisRepository.findAll(pageable)
+                                .map(this::toResponseDTO);
         }
 
 }

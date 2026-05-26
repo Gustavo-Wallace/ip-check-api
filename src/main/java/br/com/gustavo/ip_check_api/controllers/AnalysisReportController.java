@@ -6,6 +6,8 @@ import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
@@ -29,6 +31,12 @@ public class AnalysisReportController {
         return ipAnalysisService.findAll();
     }
 
+    @GetMapping("/page")
+    @Operation(summary = "List all IP analyses with pagination", description = "Returns all IP analyses using pagination.")
+    public Page<IpAnalysisResponseDTO> findAllPaged(Pageable pageable) {
+        return ipAnalysisService.findAllPaged(pageable);
+    }
+
     @GetMapping("/report/risk-level")
     @Operation(summary = "Generate risk level report", description = "Returns the amount of analyses grouped by risk level.")
     public Map<RiskLevel, Long> countByRiskLevel() {
@@ -46,4 +54,5 @@ public class AnalysisReportController {
     public AnalysisSummaryReportDTO getSummaryReport() {
         return ipAnalysisService.getSummaryReport();
     }
+
 }

@@ -293,6 +293,19 @@ Response:
 }
 ```
 
+### List Analyses With Pagination
+```http
+GET /analyses/page?page=0&size=10
+```
+Example:
+```bash
+curl "http://localhost:8080/analyses/page?page=0&size=5"
+```
+Example with sorting:
+```bash
+curl "http://localhost:8080/analyses/page?page=0&size=5&sort=analyzedAt,desc"
+```
+
 ## Running the Project
 
 On machines with Java properly configured:
