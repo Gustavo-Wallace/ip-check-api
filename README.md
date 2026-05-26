@@ -54,6 +54,22 @@ src/main/java/br/com/gustavo/ip_check_api/
 └── utils/
 ```
 
+## Environment Variables
+
+The project supports external API keys through environment variables.
+
+| Variable | Description |
+|---|---|
+| IP_INTELLIGENCE_API_KEY | API key used by the configured IP intelligence provider |
+
+Example on Windows CMD:
+
+```bat
+set IP_INTELLIGENCE_API_KEY=your-api-key-here
+mvnw.cmd spring-boot:run
+```
+The API key is not exposed by the configuration endpoint. The endpoint only indicates whether it is configured.
+
 ## Risk Levels
 
 | Level     | Description                              |
