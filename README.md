@@ -207,7 +207,16 @@ Example:
 ```bash
 curl -X POST http://localhost:8080/ips/active/analyze
 ```
-This endpoint analyzes all active registered IP addresses and stores the analysis history.
+Response:
+```JSON
+{
+  "totalProcessed": 2,
+  "successCount": 2,
+  "errorCount": 0,
+  "analyses": []
+}
+```
+This endpoint analyzes all active registered IP addresses, stores the analysis history and returns a batch processing summary.
 
 ### List Analyses by IP
 ```http

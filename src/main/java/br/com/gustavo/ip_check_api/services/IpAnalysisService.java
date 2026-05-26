@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import br.com.gustavo.ip_check_api.clients.IpIntelligenceClient;
+import br.com.gustavo.ip_check_api.dtos.BatchAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.ExternalIpCheckResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
@@ -20,185 +21,187 @@ import br.com.gustavo.ip_check_api.repositories.IpAnalysisRepository;
 import br.com.gustavo.ip_check_api.utils.IpValidator;
 import lombok.RequiredArgsConstructor;
 
-
-
 @Service
 @RequiredArgsConstructor
 public class IpAnalysisService {
 
-    private final IpAnalysisRepository ipAnalysisRepository;
-    private final IpIntelligenceClient ipIntelligenceClient;
-    private final IpAddressRepository ipAddressRepository;
+        private final IpAnalysisRepository ipAnalysisRepository;
+        private final IpIntelligenceClient ipIntelligenceClient;
+        private final IpAddressRepository ipAddressRepository;
 
-    public IpAnalysisResponseDTO analyze(String address) {
-        IpValidator.validate(address);
+        public IpAnalysisResponseDTO analyze(String address) {
+                IpValidator.validate(address);
 
-        ExternalIpCheckResponseDTO externalResponse = ipIntelligenceClient.check(address);
+                ExternalIpCheckResponseDTO externalResponse = ipIntelligenceClient.check(address);
 
-        Boolean vpn = Boolean.TRUE.equals(externalResponse.getVpn());
-        Boolean proxy = Boolean.TRUE.equals(externalResponse.getProxy());
-        Boolean tor = Boolean.TRUE.equals(externalResponse.getTor());
-        Boolean datacenter = Boolean.TRUE.equals(externalResponse.getDatacenter());
-        Boolean anonymous = vpn || proxy || tor;
+                Boolean vpn = Boolean.TRUE.equals(externalResponse.getVpn());
+                Boolean proxy = Boolean.TRUE.equals(externalResponse.getProxy());
+                Boolean tor = Boolean.TRUE.equals(externalResponse.getTor());
+                Boolean datacenter = Boolean.TRUE.equals(externalResponse.getDatacenter());
+                Boolean anonymous = vpn || proxy || tor;
 
-        RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
+                RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
 
-        IpAnalysis ipAnalysis = IpAnalysis.builder()
-                .address(address)
-                .vpn(vpn)
-                .proxy(proxy)
-                .tor(tor)
-                .datacenter(datacenter)
-                .anonymous(anonymous)
-                .riskLevel(riskLevel)
-                .source(AnalysisSource.EXTERNAL_API)
-                .build();
+                IpAnalysis ipAnalysis = IpAnalysis.builder()
+                                .address(address)
+                                .vpn(vpn)
+                                .proxy(proxy)
+                                .tor(tor)
+                                .datacenter(datacenter)
+                                .anonymous(anonymous)
+                                .riskLevel(riskLevel)
+                                .source(AnalysisSource.EXTERNAL_API)
+                                .build();
 
-        IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
+                IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
 
-        return toResponseDTO(savedIpAnalysis);
-    }
-
-    private IpAnalysisResponseDTO toResponseDTO(IpAnalysis ipAnalysis) {
-        return IpAnalysisResponseDTO.builder()
-                .id(ipAnalysis.getId())
-                .address(ipAnalysis.getAddress())
-                .vpn(ipAnalysis.getVpn())
-                .proxy(ipAnalysis.getProxy())
-                .tor(ipAnalysis.getTor())
-                .datacenter(ipAnalysis.getDatacenter())
-                .anonymous(ipAnalysis.getAnonymous())
-                .riskLevel(ipAnalysis.getRiskLevel())
-                .source(ipAnalysis.getSource())
-                .analyzedAt(ipAnalysis.getAnalyzedAt())
-                .build();
-    }
-
-    public List<IpAnalysisResponseDTO> findByAddress(String address) {
-        IpValidator.validate(address);
-
-        return ipAnalysisRepository.findByAddress(address)
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
-    }
-
-    private RiskLevel calculateRiskLevel(
-            Boolean vpn,
-            Boolean proxy,
-            Boolean tor,
-            Boolean datacenter,
-            Boolean anonymous
-    ) {
-        if (Boolean.TRUE.equals(tor)) {
-            return RiskLevel.CRITICAL;
+                return toResponseDTO(savedIpAnalysis);
         }
 
-        if (Boolean.TRUE.equals(anonymous) && Boolean.TRUE.equals(proxy)) {
-            return RiskLevel.HIGH;
+        private IpAnalysisResponseDTO toResponseDTO(IpAnalysis ipAnalysis) {
+                return IpAnalysisResponseDTO.builder()
+                                .id(ipAnalysis.getId())
+                                .address(ipAnalysis.getAddress())
+                                .vpn(ipAnalysis.getVpn())
+                                .proxy(ipAnalysis.getProxy())
+                                .tor(ipAnalysis.getTor())
+                                .datacenter(ipAnalysis.getDatacenter())
+                                .anonymous(ipAnalysis.getAnonymous())
+                                .riskLevel(ipAnalysis.getRiskLevel())
+                                .source(ipAnalysis.getSource())
+                                .analyzedAt(ipAnalysis.getAnalyzedAt())
+                                .build();
         }
 
-        if (Boolean.TRUE.equals(vpn) && Boolean.TRUE.equals(proxy)) {
-            return RiskLevel.HIGH;
+        public List<IpAnalysisResponseDTO> findByAddress(String address) {
+                IpValidator.validate(address);
+
+                return ipAnalysisRepository.findByAddress(address)
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
         }
 
-        if (Boolean.TRUE.equals(vpn) || Boolean.TRUE.equals(proxy)) {
-            return RiskLevel.MEDIUM;
+        private RiskLevel calculateRiskLevel(
+                        Boolean vpn,
+                        Boolean proxy,
+                        Boolean tor,
+                        Boolean datacenter,
+                        Boolean anonymous) {
+                if (Boolean.TRUE.equals(tor)) {
+                        return RiskLevel.CRITICAL;
+                }
+
+                if (Boolean.TRUE.equals(anonymous) && Boolean.TRUE.equals(proxy)) {
+                        return RiskLevel.HIGH;
+                }
+
+                if (Boolean.TRUE.equals(vpn) && Boolean.TRUE.equals(proxy)) {
+                        return RiskLevel.HIGH;
+                }
+
+                if (Boolean.TRUE.equals(vpn) || Boolean.TRUE.equals(proxy)) {
+                        return RiskLevel.MEDIUM;
+                }
+
+                if (Boolean.TRUE.equals(datacenter)) {
+                        return RiskLevel.ATTENTION;
+                }
+
+                return RiskLevel.LOW;
         }
 
-        if (Boolean.TRUE.equals(datacenter)) {
-            return RiskLevel.ATTENTION;
+        public IpAnalysisResponseDTO analyzeManually(String address, IpAnalysisManualRequestDTO requestDTO) {
+                IpValidator.validate(address);
+
+                Boolean vpn = Boolean.TRUE.equals(requestDTO.getVpn());
+                Boolean proxy = Boolean.TRUE.equals(requestDTO.getProxy());
+                Boolean tor = Boolean.TRUE.equals(requestDTO.getTor());
+                Boolean datacenter = Boolean.TRUE.equals(requestDTO.getDatacenter());
+                Boolean anonymous = vpn || proxy || tor;
+
+                RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
+
+                IpAnalysis ipAnalysis = IpAnalysis.builder()
+                                .address(address)
+                                .vpn(vpn)
+                                .proxy(proxy)
+                                .tor(tor)
+                                .datacenter(datacenter)
+                                .anonymous(anonymous)
+                                .riskLevel(riskLevel)
+                                .source(AnalysisSource.MANUAL_SIMULATION)
+                                .build();
+
+                IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
+
+                return toResponseDTO(savedIpAnalysis);
         }
 
-        return RiskLevel.LOW;
-    }
+        public List<IpAnalysisResponseDTO> findAll() {
+                return ipAnalysisRepository.findAll()
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
 
-    public IpAnalysisResponseDTO analyzeManually(String address, IpAnalysisManualRequestDTO requestDTO) {
-        IpValidator.validate(address);
+        public Map<RiskLevel, Long> countByRiskLevel() {
+                Map<RiskLevel, Long> report = ipAnalysisRepository.findAll()
+                                .stream()
+                                .collect(Collectors.groupingBy(
+                                                IpAnalysis::getRiskLevel,
+                                                Collectors.counting()));
 
-        Boolean vpn = Boolean.TRUE.equals(requestDTO.getVpn());
-        Boolean proxy = Boolean.TRUE.equals(requestDTO.getProxy());
-        Boolean tor = Boolean.TRUE.equals(requestDTO.getTor());
-        Boolean datacenter = Boolean.TRUE.equals(requestDTO.getDatacenter());
-        Boolean anonymous = vpn || proxy || tor;
+                Arrays.stream(RiskLevel.values())
+                                .forEach(riskLevel -> report.putIfAbsent(riskLevel, 0L));
 
-        RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
+                return report;
+        }
 
-        IpAnalysis ipAnalysis = IpAnalysis.builder()
-                .address(address)
-                .vpn(vpn)
-                .proxy(proxy)
-                .tor(tor)
-                .datacenter(datacenter)
-                .anonymous(anonymous)
-                .riskLevel(riskLevel)
-                .source(AnalysisSource.MANUAL_SIMULATION)
-                .build();
+        public Map<String, Long> countByAnonymityIndicators() {
+                List<IpAnalysis> analyses = ipAnalysisRepository.findAll();
 
-        IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
+                long vpnCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getVpn()))
+                                .count();
 
-        return toResponseDTO(savedIpAnalysis);
-    }
+                long proxyCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getProxy()))
+                                .count();
 
-    public List<IpAnalysisResponseDTO> findAll() {
-        return ipAnalysisRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
-    }
+                long torCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getTor()))
+                                .count();
 
-    public Map<RiskLevel, Long> countByRiskLevel() {
-        Map<RiskLevel, Long> report = ipAnalysisRepository.findAll()
-                .stream()
-                .collect(Collectors.groupingBy(
-                        IpAnalysis::getRiskLevel,
-                        Collectors.counting()
-                ));
+                long datacenterCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getDatacenter()))
+                                .count();
 
-        Arrays.stream(RiskLevel.values())
-                .forEach(riskLevel -> report.putIfAbsent(riskLevel, 0L));
+                long anonymousCount = analyses.stream()
+                                .filter(analysis -> Boolean.TRUE.equals(analysis.getAnonymous()))
+                                .count();
 
-        return report;
-    }
+                return Map.of(
+                                "vpn", vpnCount,
+                                "proxy", proxyCount,
+                                "tor", torCount,
+                                "datacenter", datacenterCount,
+                                "anonymous", anonymousCount);
+        }
 
-    public Map<String, Long> countByAnonymityIndicators() {
-        List<IpAnalysis> analyses = ipAnalysisRepository.findAll();
+        public BatchAnalysisResponseDTO analyzeActiveIpAddresses() {
+                List<IpAnalysisResponseDTO> analyses = ipAddressRepository.findByActiveTrue()
+                                .stream()
+                                .map(IpAddress::getAddress)
+                                .map(this::analyze)
+                                .toList();
 
-        long vpnCount = analyses.stream()
-                .filter(analysis -> Boolean.TRUE.equals(analysis.getVpn()))
-                .count();
-
-        long proxyCount = analyses.stream()
-                .filter(analysis -> Boolean.TRUE.equals(analysis.getProxy()))
-                .count();
-
-        long torCount = analyses.stream()
-                .filter(analysis -> Boolean.TRUE.equals(analysis.getTor()))
-                .count();
-
-        long datacenterCount = analyses.stream()
-                .filter(analysis -> Boolean.TRUE.equals(analysis.getDatacenter()))
-                .count();
-
-        long anonymousCount = analyses.stream()
-                .filter(analysis -> Boolean.TRUE.equals(analysis.getAnonymous()))
-                .count();
-
-        return Map.of(
-                "vpn", vpnCount,
-                "proxy", proxyCount,
-                "tor", torCount,
-                "datacenter", datacenterCount,
-                "anonymous", anonymousCount
-        );
-    }
-
-        public List<IpAnalysisResponseDTO> analyzeActiveIpAddresses() {
-        return ipAddressRepository.findByActiveTrue()
-                .stream()
-                .map(IpAddress::getAddress)
-                .map(this::analyze)
-                .toList();
+                return BatchAnalysisResponseDTO.builder()
+                                .totalProcessed(analyses.size())
+                                .successCount(analyses.size())
+                                .errorCount(0)
+                                .analyses(analyses)
+                                .build();
         }
 
 }

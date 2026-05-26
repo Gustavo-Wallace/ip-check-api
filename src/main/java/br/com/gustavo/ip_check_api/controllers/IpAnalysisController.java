@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.gustavo.ip_check_api.dtos.BatchAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.services.IpAnalysisService;
@@ -25,8 +26,8 @@ public class IpAnalysisController {
     private final IpAnalysisService ipAnalysisService;
 
     @PostMapping("/active/analyze")
-    @Operation(summary = "Analyze all active IP addresses", description = "Analyzes all active registered IP addresses and stores each analysis result.")
-    public List<IpAnalysisResponseDTO> analyzeActiveIpAddresses() {
+    @Operation(summary = "Analyze all active IP addresses", description = "Analyzes all active registered IP addresses and returns a batch processing summary.")
+    public BatchAnalysisResponseDTO analyzeActiveIpAddresses() {
         return ipAnalysisService.analyzeActiveIpAddresses();
     }
 
