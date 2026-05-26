@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "ip-intelligence")
 public class IpIntelligenceProperties {
 
-    private String provider;
+    private String provider = "mock";
     private String baseUrl;
     private String apiKey;
 }

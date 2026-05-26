@@ -353,6 +353,22 @@ Default JDBC URL
 jdbc:h2:mem:ipcheckdb
 ```
 
+## IP Intelligence Provider
+
+The project currently uses a mock IP intelligence provider.
+
+Available provider:
+
+```properties
+ip-intelligence.provider=mock
+```
+
+Future supported providers may include:
+
+ - ProxyCheck
+ - IPinfo
+ - IPQualityScore
+
 ## Future Improvements
 
  - Integrate with a real external IP intelligence API

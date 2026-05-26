@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import br.com.gustavo.ip_check_api.clients.IpIntelligenceClient;
+import br.com.gustavo.ip_check_api.clients.IpIntelligenceClientFactory;
 import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
 import br.com.gustavo.ip_check_api.dtos.BatchAnalysisErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.BatchAnalysisResponseDTO;
@@ -31,13 +31,13 @@ import lombok.RequiredArgsConstructor;
 public class IpAnalysisService {
 
         private final IpAnalysisRepository ipAnalysisRepository;
-        private final IpIntelligenceClient ipIntelligenceClient;
+        private final IpIntelligenceClientFactory ipIntelligenceClientFactory;
         private final IpAddressRepository ipAddressRepository;
 
         public IpAnalysisResponseDTO analyze(String address) {
                 IpValidator.validate(address);
 
-                ExternalIpCheckResponseDTO externalResponse = ipIntelligenceClient.check(address);
+                ExternalIpCheckResponseDTO externalResponse = ipIntelligenceClientFactory.getClient().check(address);
 
                 Boolean vpn = Boolean.TRUE.equals(externalResponse.getVpn());
                 Boolean proxy = Boolean.TRUE.equals(externalResponse.getProxy());
