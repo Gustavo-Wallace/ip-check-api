@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
@@ -45,6 +47,12 @@ public class IpAddressController {
     @Operation(summary = "List active IP addresses", description = "Returns only active registered IP addresses.")
     public List<IpAddressResponseDTO> findAllActive() {
         return ipAddressService.findAllActive();
+    }
+
+    @GetMapping("/page")
+    @Operation(summary = "List registered IP addresses with pagination", description = "Returns registered IP addresses using pagination.")
+    public Page<IpAddressResponseDTO> findAllPaged(Pageable pageable) {
+        return ipAddressService.findAllPaged(pageable);
     }
 
     @GetMapping("/{id}")

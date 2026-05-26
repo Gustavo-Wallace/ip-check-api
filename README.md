@@ -146,6 +146,19 @@ Example:
 curl http://localhost:8080/ips/1
 ```
 
+### List IP Addresses With Pagination
+```http
+GET /ips/page?page=0&size=10
+```
+Example:
+```bash
+curl "http://localhost:8080/ips/page?page=0&size=5"
+```
+Example with sorting:
+```bash
+curl "http://localhost:8080/ips/page?page=0&size=5&sort=createdAt,desc"
+```
+
 ### Analyze IP Address
 ```http
 POST /ips/{address}/analyze`

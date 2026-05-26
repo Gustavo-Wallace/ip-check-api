@@ -3,6 +3,8 @@ package br.com.gustavo.ip_check_api.services;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
@@ -86,6 +88,11 @@ public class IpAddressService {
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();
+    }
+
+    public Page<IpAddressResponseDTO> findAllPaged(Pageable pageable) {
+        return ipAddressRepository.findAll(pageable)
+                .map(this::toResponseDTO);
     }
 
 }
