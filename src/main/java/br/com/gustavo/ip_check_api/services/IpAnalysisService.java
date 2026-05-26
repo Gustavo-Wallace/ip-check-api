@@ -1,5 +1,6 @@
 package br.com.gustavo.ip_check_api.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.gustavo.ip_check_api.clients.IpIntelligenceClient;
 import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
+import br.com.gustavo.ip_check_api.dtos.BatchAnalysisErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.BatchAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.ExternalIpCheckResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
@@ -191,17 +193,31 @@ public class IpAnalysisService {
         }
 
         public BatchAnalysisResponseDTO analyzeActiveIpAddresses() {
-                List<IpAnalysisResponseDTO> analyses = ipAddressRepository.findByActiveTrue()
-                                .stream()
-                                .map(IpAddress::getAddress)
-                                .map(this::analyze)
-                                .toList();
+                List<IpAddress> activeIpAddresses = ipAddressRepository.findByActiveTrue();
+
+                List<IpAnalysisResponseDTO> analyses = new ArrayList<>();
+                List<BatchAnalysisErrorDTO> errors = new ArrayList<>();
+
+                for (IpAddress ipAddress : activeIpAddresses) {
+                        try {
+                                IpAnalysisResponseDTO analysis = analyze(ipAddress.getAddress());
+                                analyses.add(analysis);
+                        } catch (Exception exception) {
+                                BatchAnalysisErrorDTO error = BatchAnalysisErrorDTO.builder()
+                                                .address(ipAddress.getAddress())
+                                                .message(exception.getMessage())
+                                                .build();
+
+                                errors.add(error);
+                        }
+                }
 
                 return BatchAnalysisResponseDTO.builder()
-                                .totalProcessed(analyses.size())
+                                .totalProcessed(activeIpAddresses.size())
                                 .successCount(analyses.size())
-                                .errorCount(0)
+                                .errorCount(errors.size())
                                 .analyses(analyses)
+                                .errors(errors)
                                 .build();
         }
 

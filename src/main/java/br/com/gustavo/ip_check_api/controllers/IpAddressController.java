@@ -30,55 +30,37 @@ public class IpAddressController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(
-            summary = "Register an IP address",
-            description = "Registers a new IP address for future analysis."
-    )
+    @Operation(summary = "Register an IP address", description = "Registers a new IP address for future analysis.")
     public IpAddressResponseDTO create(@RequestBody @Valid IpAddressRequestDTO requestDTO) {
         return ipAddressService.create(requestDTO);
     }
 
     @GetMapping
-    @Operation(
-            summary = "List registered IP addresses",
-            description = "Returns all registered IP addresses."
-    )
+    @Operation(summary = "List registered IP addresses", description = "Returns all registered IP addresses.")
     public List<IpAddressResponseDTO> findAll() {
         return ipAddressService.findAll();
     }
 
     @GetMapping("/active")
-    @Operation(
-            summary = "List active IP addresses",
-            description = "Returns only active registered IP addresses."
-    )
+    @Operation(summary = "List active IP addresses", description = "Returns only active registered IP addresses.")
     public List<IpAddressResponseDTO> findAllActive() {
         return ipAddressService.findAllActive();
     }
 
     @GetMapping("/{id}")
-    @Operation(
-            summary = "Find IP address by ID",
-            description = "Returns a registered IP address by its ID."
-    )
+    @Operation(summary = "Find IP address by ID", description = "Returns a registered IP address by its ID.")
     public IpAddressResponseDTO findById(@PathVariable Long id) {
         return ipAddressService.findById(id);
     }
 
     @PatchMapping("/{id}/deactivate")
-    @Operation(
-            summary = "Deactivate IP address",
-            description = "Deactivates a registered IP address without deleting it from the database."
-    )
+    @Operation(summary = "Deactivate IP address", description = "Deactivates a registered IP address without deleting it from the database.")
     public IpAddressResponseDTO deactivate(@PathVariable Long id) {
         return ipAddressService.deactivate(id);
     }
 
     @PatchMapping("/{id}/activate")
-    @Operation(
-            summary = "Activate IP address",
-            description = "Activates a previously deactivated IP address."
-    )
+    @Operation(summary = "Activate IP address", description = "Activates a previously deactivated IP address.")
     public IpAddressResponseDTO activate(@PathVariable Long id) {
         return ipAddressService.activate(id);
     }

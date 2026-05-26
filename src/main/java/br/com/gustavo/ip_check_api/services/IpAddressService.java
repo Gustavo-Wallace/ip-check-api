@@ -34,7 +34,7 @@ public class IpAddressService {
 
         return toResponseDTO(savedIpAddress);
     }
-    
+
     public List<IpAddressResponseDTO> findAll() {
         return ipAddressRepository.findAll()
                 .stream()

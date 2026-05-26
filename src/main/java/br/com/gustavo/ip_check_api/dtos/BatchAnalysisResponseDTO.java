@@ -13,4 +13,5 @@ public class BatchAnalysisResponseDTO {
     private Integer successCount;
     private Integer errorCount;
     private List<IpAnalysisResponseDTO> analyses;
+    private List<BatchAnalysisErrorDTO> errors;
 }

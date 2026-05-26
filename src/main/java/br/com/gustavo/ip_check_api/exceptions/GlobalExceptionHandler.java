@@ -14,55 +14,52 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponseDTO handleIllegalArgumentException(
-            IllegalArgumentException exception,
-            HttpServletRequest request
-    ) {
-        return ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(exception.getMessage())
-                .path(request.getRequestURI())
-                .build();
-    }
+        @ExceptionHandler(IllegalArgumentException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public ErrorResponseDTO handleIllegalArgumentException(
+                        IllegalArgumentException exception,
+                        HttpServletRequest request) {
+                return ErrorResponseDTO.builder()
+                                .timestamp(LocalDateTime.now())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                                .message(exception.getMessage())
+                                .path(request.getRequestURI())
+                                .build();
+        }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponseDTO handleValidationException(
-            MethodArgumentNotValidException exception,
-            HttpServletRequest request
-    ) {
-        String message = exception.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .findFirst()
-                .map(error -> error.getDefaultMessage())
-                .orElse("Invalid request data");
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public ErrorResponseDTO handleValidationException(
+                        MethodArgumentNotValidException exception,
+                        HttpServletRequest request) {
+                String message = exception.getBindingResult()
+                                .getFieldErrors()
+                                .stream()
+                                .findFirst()
+                                .map(error -> error.getDefaultMessage())
+                                .orElse("Invalid request data");
 
-        return ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .message(message)
-                .path(request.getRequestURI())
-                .build();
-    }
+                return ErrorResponseDTO.builder()
+                                .timestamp(LocalDateTime.now())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                                .message(message)
+                                .path(request.getRequestURI())
+                                .build();
+        }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+        @ExceptionHandler(ResourceNotFoundException.class)
         @ResponseStatus(HttpStatus.NOT_FOUND)
         public ErrorResponseDTO handleResourceNotFoundException(
-                ResourceNotFoundException exception,
-                HttpServletRequest request
-        ) {
-        return ErrorResponseDTO.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .message(exception.getMessage())
-                .path(request.getRequestURI())
-                .build();
+                        ResourceNotFoundException exception,
+                        HttpServletRequest request) {
+                return ErrorResponseDTO.builder()
+                                .timestamp(LocalDateTime.now())
+                                .status(HttpStatus.NOT_FOUND.value())
+                                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                                .message(exception.getMessage())
+                                .path(request.getRequestURI())
+                                .build();
         }
 }

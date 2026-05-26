@@ -213,7 +213,8 @@ Response:
   "totalProcessed": 2,
   "successCount": 2,
   "errorCount": 0,
-  "analyses": []
+  "analyses": [],
+  "errors": []
 }
 ```
 This endpoint analyzes all active registered IP addresses, stores the analysis history and returns a batch processing summary.

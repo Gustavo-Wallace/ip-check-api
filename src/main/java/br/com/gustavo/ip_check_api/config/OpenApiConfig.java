@@ -14,6 +14,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("IP Check API")
                         .version("1.0.0")
-                        .description("REST API for detecting VPN, proxy, Tor, datacenter and anonymized IP addresses."));
+                        .description(
+                                "REST API for detecting VPN, proxy, Tor, datacenter and anonymized IP addresses."));
     }
 }

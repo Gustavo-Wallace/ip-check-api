@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class HealthController {
 
     @GetMapping("/health")
-    @Operation(
-            summary = "Check API status",
-            description = "Returns a simple message indicating that the API is running."
-    )
+    @Operation(summary = "Check API status", description = "Returns a simple message indicating that the API is running.")
     public String health() {
         return "IP Check API is running";
     }
