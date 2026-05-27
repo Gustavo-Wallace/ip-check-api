@@ -27,7 +27,8 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
                     .uri(uriBuilder -> {
                         uriBuilder.path("/{address}")
                                 .queryParam("vpn", "1")
-                                .queryParam("risk", "1");
+                                .queryParam("risk", "1")
+                                .queryParam("asn", "1");
 
                         if (properties.getApiKey() != null && !properties.getApiKey().isBlank()) {
                             uriBuilder.queryParam("key", properties.getApiKey());
@@ -65,16 +66,41 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
         Map<?, ?> network = getMap(ipData.get("network"));
         Map<?, ?> detections = getMap(ipData.get("detections"));
 
-        String externalProvider = getString(network.get("provider"));
-        String type = getString(network.get("type"));
+        String externalProvider = firstNonBlank(
+                getString(network.get("provider")),
+                getString(ipData.get("provider")),
+                getString(ipData.get("organisation")),
+                getString(ipData.get("asn")),
+                getString(ipData.get("asn")),
+                getString(network.get("asn")));
 
-        boolean proxy = getBoolean(detections.get("proxy"));
-        boolean vpn = getBoolean(detections.get("vpn"));
-        boolean tor = getBoolean(detections.get("tor"));
-        boolean hosting = getBoolean(detections.get("hosting"));
-        boolean anonymous = getBoolean(detections.get("anonymous"));
+        String type = firstNonBlank(
+                getString(network.get("type")),
+                getString(ipData.get("type")));
 
-        Integer risk = getInteger(detections.get("risk"));
+        boolean proxy = getBoolean(firstNonNull(
+                detections.get("proxy"),
+                ipData.get("proxy")));
+
+        boolean vpn = getBoolean(firstNonNull(
+                detections.get("vpn"),
+                ipData.get("vpn")));
+
+        boolean tor = getBoolean(firstNonNull(
+                detections.get("tor"),
+                ipData.get("tor")));
+
+        boolean hosting = getBoolean(firstNonNull(
+                detections.get("hosting"),
+                ipData.get("hosting")));
+
+        boolean anonymous = getBoolean(firstNonNull(
+                detections.get("anonymous"),
+                ipData.get("anonymous")));
+
+        Integer risk = getInteger(firstNonNull(
+                detections.get("risk"),
+                ipData.get("risk")));
 
         boolean datacenter = hosting || isDatacenterType(type);
 
@@ -88,6 +114,20 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
                 .externalType(type)
                 .externalProvider(externalProvider)
                 .build();
+    }
+
+    private Object firstNonNull(Object first, Object second) {
+        return first != null ? first : second;
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+
+        return null;
     }
 
     private Map<?, ?> getMap(Object value) {

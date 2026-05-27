@@ -80,6 +80,18 @@ The API key is not exposed by the configuration endpoint. The endpoint only indi
 | HIGH      | Strong anonymity combination detected    |
 | CRITICAL  | Tor detected                             |
 
+## Risk Level Calculation
+
+The risk level is calculated using anonymity indicators and the external risk score.
+
+| Condition | Risk Level |
+|---|---|
+| Tor detected or external risk score >= 90 | CRITICAL |
+| VPN + Proxy, Anonymous + Proxy, or external risk score >= 70 | HIGH |
+| VPN, Proxy, or external risk score >= 40 | MEDIUM |
+| Datacenter detected or external risk score >= 20 | ATTENTION |
+| No relevant indicator and external risk score below 20 | LOW |
+
 ## Analysis Sources
 
 | Source            | Description                         |
@@ -357,18 +369,6 @@ Response:
   "apiKeyConfigured": "false"
 }
 ```
-
-## Risk Level Calculation
-
-The risk level is calculated using anonymity indicators and the external risk score.
-
-| Condition | Risk Level |
-|---|---|
-| Tor detected or external risk score >= 90 | CRITICAL |
-| VPN + Proxy, Anonymous + Proxy, or external risk score >= 70 | HIGH |
-| VPN, Proxy, or external risk score >= 40 | MEDIUM |
-| Datacenter detected or external risk score >= 20 | ATTENTION |
-| No relevant indicator and external risk score below 20 | LOW |
 
 ## Running the Project
 
