@@ -69,7 +69,7 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
 
         boolean vpn = "VPN".equalsIgnoreCase(type);
         boolean tor = "TOR".equalsIgnoreCase(type);
-        boolean datacenter = risk != null && risk >= 33 && !proxy && !vpn && !tor;
+        boolean datacenter = isDatacenterType(type);
 
         return ExternalIpCheckResponseDTO.builder()
                 .address(address)
@@ -101,5 +101,18 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
         } catch (NumberFormatException exception) {
             return null;
         }
+    }
+
+    private boolean isDatacenterType(String type) {
+        if (type == null) {
+            return false;
+        }
+
+        String normalizedType = type.trim().toLowerCase();
+
+        return normalizedType.contains("hosting")
+                || normalizedType.contains("data center")
+                || normalizedType.contains("datacenter")
+                || normalizedType.contains("server");
     }
 }

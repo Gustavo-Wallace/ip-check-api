@@ -342,6 +342,18 @@ Response:
 }
 ```
 
+## Risk Level Calculation
+
+The risk level is calculated using anonymity indicators and the external risk score.
+
+| Condition | Risk Level |
+|---|---|
+| Tor detected or external risk score >= 90 | CRITICAL |
+| VPN + Proxy, Anonymous + Proxy, or external risk score >= 70 | HIGH |
+| VPN, Proxy, or external risk score >= 40 | MEDIUM |
+| Datacenter detected or external risk score >= 20 | ATTENTION |
+| No relevant indicator and external risk score below 20 | LOW |
+
 ## Running the Project
 
 On machines with Java properly configured:

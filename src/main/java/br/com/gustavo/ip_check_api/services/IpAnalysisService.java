@@ -45,7 +45,13 @@ public class IpAnalysisService {
                 Boolean datacenter = Boolean.TRUE.equals(externalResponse.getDatacenter());
                 Boolean anonymous = vpn || proxy || tor;
 
-                RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
+                RiskLevel riskLevel = calculateRiskLevel(
+                                vpn,
+                                proxy,
+                                tor,
+                                datacenter,
+                                anonymous,
+                                externalResponse.getExternalRiskScore());
 
                 IpAnalysis ipAnalysis = IpAnalysis.builder()
                                 .address(address)
@@ -98,8 +104,13 @@ public class IpAnalysisService {
                         Boolean proxy,
                         Boolean tor,
                         Boolean datacenter,
-                        Boolean anonymous) {
+                        Boolean anonymous,
+                        Integer externalRiskScore) {
                 if (Boolean.TRUE.equals(tor)) {
+                        return RiskLevel.CRITICAL;
+                }
+
+                if (externalRiskScore != null && externalRiskScore >= 90) {
                         return RiskLevel.CRITICAL;
                 }
 
@@ -111,11 +122,23 @@ public class IpAnalysisService {
                         return RiskLevel.HIGH;
                 }
 
+                if (externalRiskScore != null && externalRiskScore >= 70) {
+                        return RiskLevel.HIGH;
+                }
+
                 if (Boolean.TRUE.equals(vpn) || Boolean.TRUE.equals(proxy)) {
                         return RiskLevel.MEDIUM;
                 }
 
+                if (externalRiskScore != null && externalRiskScore >= 40) {
+                        return RiskLevel.MEDIUM;
+                }
+
                 if (Boolean.TRUE.equals(datacenter)) {
+                        return RiskLevel.ATTENTION;
+                }
+
+                if (externalRiskScore != null && externalRiskScore >= 20) {
                         return RiskLevel.ATTENTION;
                 }
 
@@ -131,7 +154,13 @@ public class IpAnalysisService {
                 Boolean datacenter = Boolean.TRUE.equals(requestDTO.getDatacenter());
                 Boolean anonymous = vpn || proxy || tor;
 
-                RiskLevel riskLevel = calculateRiskLevel(vpn, proxy, tor, datacenter, anonymous);
+                RiskLevel riskLevel = calculateRiskLevel(
+                                vpn,
+                                proxy,
+                                tor,
+                                datacenter,
+                                anonymous,
+                                null);
 
                 IpAnalysis ipAnalysis = IpAnalysis.builder()
                                 .address(address)
