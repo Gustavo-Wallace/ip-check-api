@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,12 @@ public class AnalysisReportController {
     @Operation(summary = "List all IP analyses with pagination", description = "Returns all IP analyses using pagination.")
     public Page<IpAnalysisResponseDTO> findAllPaged(Pageable pageable) {
         return ipAnalysisService.findAllPaged(pageable);
+    }
+
+    @GetMapping("/risk-level/{riskLevel}")
+    @Operation(summary = "List analyses by risk level", description = "Returns all IP analyses matching the provided risk level.")
+    public List<IpAnalysisResponseDTO> findByRiskLevel(@PathVariable RiskLevel riskLevel) {
+        return ipAnalysisService.findByRiskLevel(riskLevel);
     }
 
     @GetMapping("/report/risk-level")

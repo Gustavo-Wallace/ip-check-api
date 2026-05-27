@@ -294,6 +294,22 @@ GET /ips/{address}/analyses
 Get /analyses
 ```
 
+### List Analyses by risk Level
+```http
+GET /analyses/risk-level/{riskLevel}
+```
+Example:
+```bash
+curl http://localhost:8080/analyses/risk-level/CRITICAL
+```
+Available risk levels:
+
+ - LOW
+ - ATTENTION
+ - MEDIUM
+ - HIGH
+ - CRITICAL
+
 ### Analysis Summary Report
 ```http
 GET /analyses/report/summary

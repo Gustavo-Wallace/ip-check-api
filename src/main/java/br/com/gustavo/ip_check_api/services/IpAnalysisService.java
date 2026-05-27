@@ -355,4 +355,11 @@ public class IpAnalysisService {
                                 .orElse(null);
         }
 
+        public List<IpAnalysisResponseDTO> findByRiskLevel(RiskLevel riskLevel) {
+                return ipAnalysisRepository.findByRiskLevel(riskLevel)
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
+
 }
