@@ -18,6 +18,9 @@ public class MockIpIntelligenceClient implements IpIntelligenceClient {
                 .externalRiskScore(0)
                 .externalType("MOCK")
                 .externalProvider("Mock Provider")
+                .asn("MOCK-ASN")
+                .country("Mock Country")
+                .city("Mock City")
                 .build();
     }
 

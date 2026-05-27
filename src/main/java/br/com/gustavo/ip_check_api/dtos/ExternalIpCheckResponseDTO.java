@@ -16,4 +16,8 @@ public class ExternalIpCheckResponseDTO {
     private Integer externalRiskScore;
     private String externalType;
     private String externalProvider;
+
+    private String asn;
+    private String country;
+    private String city;
 }

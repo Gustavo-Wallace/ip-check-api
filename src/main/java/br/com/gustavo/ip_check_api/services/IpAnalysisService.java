@@ -74,6 +74,9 @@ public class IpAnalysisService {
                                 .externalRiskScore(externalResponse.getExternalRiskScore())
                                 .externalType(externalResponse.getExternalType())
                                 .externalProvider(externalResponse.getExternalProvider())
+                                .asn(externalResponse.getAsn())
+                                .country(externalResponse.getCountry())
+                                .city(externalResponse.getCity())
                                 .build();
 
                 IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
@@ -95,6 +98,9 @@ public class IpAnalysisService {
                                 .externalRiskScore(ipAnalysis.getExternalRiskScore())
                                 .externalType(ipAnalysis.getExternalType())
                                 .externalProvider(ipAnalysis.getExternalProvider())
+                                .asn(ipAnalysis.getAsn())
+                                .country(ipAnalysis.getCountry())
+                                .city(ipAnalysis.getCity())
                                 .analyzedAt(ipAnalysis.getAnalyzedAt())
                                 .build();
         }
@@ -182,6 +188,9 @@ public class IpAnalysisService {
                                 .source(AnalysisSource.MANUAL_SIMULATION)
                                 .externalType("MANUAL")
                                 .externalProvider("Manual Simulation")
+                                .asn(null)
+                                .country(null)
+                                .city(null)
                                 .build();
 
                 IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);

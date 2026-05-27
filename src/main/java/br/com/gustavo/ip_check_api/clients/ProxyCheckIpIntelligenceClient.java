@@ -65,6 +65,7 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
 
         Map<?, ?> network = getMap(ipData.get("network"));
         Map<?, ?> detections = getMap(ipData.get("detections"));
+        Map<?, ?> location = getMap(ipData.get("location"));
 
         String externalProvider = firstNonBlank(
                 getString(network.get("provider")),
@@ -102,6 +103,20 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
                 detections.get("risk"),
                 ipData.get("risk")));
 
+        String asn = firstNonBlank(
+                getString(network.get("asn")),
+                getString(ipData.get("asn")));
+
+        String country = firstNonBlank(
+                getString(location.get("country_name")),
+                getString(ipData.get("country")),
+                getString(ipData.get("country_name")));
+
+        String city = firstNonBlank(
+                getString(location.get("city_name")),
+                getString(ipData.get("city")),
+                getString(ipData.get("city_name")));
+
         boolean datacenter = hosting || isDatacenterType(type);
 
         return ExternalIpCheckResponseDTO.builder()
@@ -113,6 +128,9 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
                 .externalRiskScore(risk)
                 .externalType(type)
                 .externalProvider(externalProvider)
+                .asn(asn)
+                .country(country)
+                .city(city)
                 .build();
     }
 

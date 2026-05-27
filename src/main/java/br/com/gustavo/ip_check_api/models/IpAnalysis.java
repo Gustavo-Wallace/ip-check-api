@@ -66,6 +66,15 @@ public class IpAnalysis {
     @Column(length = 255)
     private String externalProvider;
 
+    @Column(length = 50)
+    private String asn;
+
+    @Column(length = 100)
+    private String country;
+
+    @Column(length = 100)
+    private String city;
+
     @Column(nullable = false)
     private LocalDateTime analyzedAt;
 

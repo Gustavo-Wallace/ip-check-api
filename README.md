@@ -215,10 +215,13 @@ Response:
 ```JSON
 {
   "address": "8.8.8.8",
-  "analyzedAt": "2026-05-27T14:32:32.5717077",
+  "analyzedAt": "2026-05-27T16:57:23.1703389",
   "anonymous": false,
+  "asn": "AS15169",
+  "city": "Mountain View",
+  "country": "United States",
   "datacenter": false,
-  "externalProvider": null,
+  "externalProvider": "Google LLC",
   "externalRiskScore": 0,
   "externalType": "Business",
   "id": 1,
