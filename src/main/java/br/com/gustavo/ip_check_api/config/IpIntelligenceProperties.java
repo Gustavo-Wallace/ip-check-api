@@ -14,4 +14,5 @@ public class IpIntelligenceProperties {
     private String provider = "mock";
     private String baseUrl;
     private String apiKey;
+    private Long cacheDurationMinutes = 60L;
 }

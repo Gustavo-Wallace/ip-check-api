@@ -62,4 +62,18 @@ public class GlobalExceptionHandler {
                                 .path(request.getRequestURI())
                                 .build();
         }
+
+        @ExceptionHandler(ExternalIpIntelligenceException.class)
+        @ResponseStatus(HttpStatus.BAD_GATEWAY)
+        public ErrorResponseDTO handleExternalIpIntelligenceException(
+                        ExternalIpIntelligenceException exception,
+                        HttpServletRequest request) {
+                return ErrorResponseDTO.builder()
+                                .timestamp(LocalDateTime.now())
+                                .status(HttpStatus.BAD_GATEWAY.value())
+                                .error(HttpStatus.BAD_GATEWAY.getReasonPhrase())
+                                .message(exception.getMessage())
+                                .path(request.getRequestURI())
+                                .build();
+        }
 }

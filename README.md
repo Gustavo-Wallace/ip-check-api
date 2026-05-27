@@ -88,6 +88,22 @@ The API key is not exposed by the configuration endpoint. The endpoint only indi
 | MANUAL_SIMULATION | Manual simulation for testing       |
 | EXTERNAL_API      | Mocked external intelligence client |
 
+## IP Intelligence Cache
+
+The project can reuse recent analyses to avoid unnecessary external API calls.
+
+```properties
+ip-intelligence.cache-duration-minutes=60
+```
+
+If the same IP was analyzed within the configured time window, the latest analysis is reused.
+
+To disable cache:
+
+```properties
+ip-intelligence.cache-duration-minutes=0
+```
+
 ## Endpoints
 
 ### Health Check

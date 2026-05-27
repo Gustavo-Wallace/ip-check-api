@@ -10,4 +10,5 @@ public class IpIntelligenceConfigResponseDTO {
     private String provider;
     private String baseUrlConfigured;
     private String apiKeyConfigured;
+    private Long cacheDurationMinutes;
 }

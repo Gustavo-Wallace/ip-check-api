@@ -1,12 +1,14 @@
 package br.com.gustavo.ip_check_api.repositories;
 
-import java.util.List;
-
+import br.com.gustavo.ip_check_api.models.IpAnalysis;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import br.com.gustavo.ip_check_api.models.IpAnalysis;
+import java.util.List;
+import java.util.Optional;
 
 public interface IpAnalysisRepository extends JpaRepository<IpAnalysis, Long> {
 
     List<IpAnalysis> findByAddress(String address);
+
+    Optional<IpAnalysis> findTopByAddressOrderByAnalyzedAtDesc(String address);
 }

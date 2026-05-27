@@ -1,5 +1,6 @@
 package br.com.gustavo.ip_check_api.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import br.com.gustavo.ip_check_api.clients.IpIntelligenceClientFactory;
+import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
 import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
 import br.com.gustavo.ip_check_api.dtos.BatchAnalysisErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.BatchAnalysisResponseDTO;
@@ -33,9 +35,16 @@ public class IpAnalysisService {
         private final IpAnalysisRepository ipAnalysisRepository;
         private final IpIntelligenceClientFactory ipIntelligenceClientFactory;
         private final IpAddressRepository ipAddressRepository;
+        private final IpIntelligenceProperties ipIntelligenceProperties;
 
         public IpAnalysisResponseDTO analyze(String address) {
                 IpValidator.validate(address);
+
+                IpAnalysis recentAnalysis = getRecentAnalysisOrNull(address);
+
+                if (recentAnalysis != null) {
+                        return toResponseDTO(recentAnalysis);
+                }
 
                 ExternalIpCheckResponseDTO externalResponse = ipIntelligenceClientFactory.getClient().check(address);
 
@@ -316,6 +325,21 @@ public class IpAnalysisService {
         public Page<IpAnalysisResponseDTO> findAllPaged(Pageable pageable) {
                 return ipAnalysisRepository.findAll(pageable)
                                 .map(this::toResponseDTO);
+        }
+
+        private IpAnalysis getRecentAnalysisOrNull(String address) {
+                Long cacheDurationMinutes = ipIntelligenceProperties.getCacheDurationMinutes();
+
+                if (cacheDurationMinutes == null || cacheDurationMinutes <= 0) {
+                        return null;
+                }
+
+                LocalDateTime minimumAcceptedTime = LocalDateTime.now()
+                                .minusMinutes(cacheDurationMinutes);
+
+                return ipAnalysisRepository.findTopByAddressOrderByAnalyzedAtDesc(address)
+                                .filter(analysis -> analysis.getAnalyzedAt().isAfter(minimumAcceptedTime))
+                                .orElse(null);
         }
 
 }

@@ -62,14 +62,21 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
             throw new ExternalIpIntelligenceException("Invalid response format from ProxyCheck");
         }
 
-        boolean proxy = isYes(ipData.get("proxy"));
-        String type = getString(ipData.get("type"));
-        Integer risk = getInteger(ipData.get("risk"));
-        String provider = getString(ipData.get("provider"));
+        Map<?, ?> network = getMap(ipData.get("network"));
+        Map<?, ?> detections = getMap(ipData.get("detections"));
 
-        boolean vpn = "VPN".equalsIgnoreCase(type);
-        boolean tor = "TOR".equalsIgnoreCase(type);
-        boolean datacenter = isDatacenterType(type);
+        String externalProvider = getString(network.get("provider"));
+        String type = getString(network.get("type"));
+
+        boolean proxy = getBoolean(detections.get("proxy"));
+        boolean vpn = getBoolean(detections.get("vpn"));
+        boolean tor = getBoolean(detections.get("tor"));
+        boolean hosting = getBoolean(detections.get("hosting"));
+        boolean anonymous = getBoolean(detections.get("anonymous"));
+
+        Integer risk = getInteger(detections.get("risk"));
+
+        boolean datacenter = hosting || isDatacenterType(type);
 
         return ExternalIpCheckResponseDTO.builder()
                 .address(address)
@@ -79,8 +86,29 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
                 .datacenter(datacenter)
                 .externalRiskScore(risk)
                 .externalType(type)
-                .externalProvider(provider)
+                .externalProvider(externalProvider)
                 .build();
+    }
+
+    private Map<?, ?> getMap(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            return map;
+        }
+
+        return Map.of();
+    }
+
+    private boolean getBoolean(Object value) {
+        if (value == null) {
+            return false;
+        }
+
+        if (value instanceof Boolean booleanValue) {
+            return booleanValue;
+        }
+
+        return "true".equalsIgnoreCase(value.toString())
+                || "yes".equalsIgnoreCase(value.toString());
     }
 
     private boolean isYes(Object value) {

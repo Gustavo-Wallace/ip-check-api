@@ -23,6 +23,7 @@ public class IpIntelligenceConfigController {
                 .baseUrlConfigured(
                         String.valueOf(properties.getBaseUrl() != null && !properties.getBaseUrl().isBlank()))
                 .apiKeyConfigured(String.valueOf(properties.getApiKey() != null && !properties.getApiKey().isBlank()))
+                .cacheDurationMinutes(properties.getCacheDurationMinutes())
                 .build();
     }
 }
