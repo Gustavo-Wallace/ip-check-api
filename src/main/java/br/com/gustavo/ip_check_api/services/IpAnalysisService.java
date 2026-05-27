@@ -77,6 +77,8 @@ public class IpAnalysisService {
                                 .asn(externalResponse.getAsn())
                                 .country(externalResponse.getCountry())
                                 .city(externalResponse.getCity())
+                                .hostname(externalResponse.getHostname())
+                                .networkRange(externalResponse.getNetworkRange())
                                 .build();
 
                 IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
@@ -102,6 +104,8 @@ public class IpAnalysisService {
                                 .country(ipAnalysis.getCountry())
                                 .city(ipAnalysis.getCity())
                                 .analyzedAt(ipAnalysis.getAnalyzedAt())
+                                .hostname(ipAnalysis.getHostname())
+                                .networkRange(ipAnalysis.getNetworkRange())
                                 .build();
         }
 

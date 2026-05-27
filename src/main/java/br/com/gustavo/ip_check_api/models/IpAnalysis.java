@@ -75,6 +75,12 @@ public class IpAnalysis {
     @Column(length = 100)
     private String city;
 
+    @Column(length = 255)
+    private String hostname;
+
+    @Column(length = 100)
+    private String networkRange;
+
     @Column(nullable = false)
     private LocalDateTime analyzedAt;
 

@@ -20,4 +20,6 @@ public class ExternalIpCheckResponseDTO {
     private String asn;
     private String country;
     private String city;
+    private String hostname;
+    private String networkRange;
 }

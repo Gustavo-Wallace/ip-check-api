@@ -30,6 +30,8 @@ public class IpAnalysisResponseDTO {
     private String asn;
     private String country;
     private String city;
+    private String hostname;
+    private String networkRange;
 
     private LocalDateTime analyzedAt;
 }

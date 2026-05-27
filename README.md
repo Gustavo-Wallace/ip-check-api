@@ -215,7 +215,7 @@ Response:
 ```JSON
 {
   "address": "8.8.8.8",
-  "analyzedAt": "2026-05-27T16:57:23.1703389",
+  "analyzedAt": "2026-05-27T17:04:00.1765442",
   "anonymous": false,
   "asn": "AS15169",
   "city": "Mountain View",
@@ -224,7 +224,9 @@ Response:
   "externalProvider": "Google LLC",
   "externalRiskScore": 0,
   "externalType": "Business",
+  "hostname": "dns.google",
   "id": 1,
+  "networkRange": "8.8.8.0/24",
   "proxy": false,
   "riskLevel": "LOW",
   "source": "EXTERNAL_API",

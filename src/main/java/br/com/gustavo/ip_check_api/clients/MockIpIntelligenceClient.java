@@ -21,6 +21,8 @@ public class MockIpIntelligenceClient implements IpIntelligenceClient {
                 .asn("MOCK-ASN")
                 .country("Mock Country")
                 .city("Mock City")
+                .hostname("mock.local")
+                .networkRange("0.0.0.0/0")
                 .build();
     }
 

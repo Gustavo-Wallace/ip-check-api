@@ -117,6 +117,14 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
                 getString(ipData.get("city")),
                 getString(ipData.get("city_name")));
 
+        String hostname = firstNonBlank(
+                getString(network.get("hostname")),
+                getString(ipData.get("hostname")));
+
+        String networkRange = firstNonBlank(
+                getString(network.get("range")),
+                getString(ipData.get("range")));
+
         boolean datacenter = hosting || isDatacenterType(type);
 
         return ExternalIpCheckResponseDTO.builder()
@@ -131,6 +139,8 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
                 .asn(asn)
                 .country(country)
                 .city(city)
+                .hostname(hostname)
+                .networkRange(networkRange)
                 .build();
     }
 
