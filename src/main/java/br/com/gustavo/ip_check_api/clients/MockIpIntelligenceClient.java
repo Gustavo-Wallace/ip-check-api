@@ -15,6 +15,9 @@ public class MockIpIntelligenceClient implements IpIntelligenceClient {
                 .proxy(false)
                 .tor(false)
                 .datacenter(isProbablyDatacenter(address))
+                .externalRiskScore(0)
+                .externalType("MOCK")
+                .externalProvider("Mock Provider")
                 .build();
     }
 

@@ -22,5 +22,10 @@ public class IpAnalysisResponseDTO {
 
     private RiskLevel riskLevel;
     private AnalysisSource source;
+
+    private Integer externalRiskScore;
+    private String externalType;
+    private String externalProvider;
+
     private LocalDateTime analyzedAt;
 }

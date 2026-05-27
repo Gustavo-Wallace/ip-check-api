@@ -186,16 +186,19 @@ curl -X POST http://localhost:8080/ips/8.8.8.8/analyze
 Response:
 ```JSON
 {
-  "id": 1,
   "address": "8.8.8.8",
-  "vpn": false,
-  "proxy": false,
-  "tor": false,
-  "datacenter": true,
+  "analyzedAt": "2026-05-27T14:32:32.5717077",
   "anonymous": false,
-  "riskLevel": "ATTENTION",
+  "datacenter": false,
+  "externalProvider": null,
+  "externalRiskScore": 0,
+  "externalType": "Business",
+  "id": 1,
+  "proxy": false,
+  "riskLevel": "LOW",
   "source": "EXTERNAL_API",
-  "analyzedAt": "2026-05-20T13:40:00"
+  "tor": false,
+  "vpn": false
 }
 ```
 

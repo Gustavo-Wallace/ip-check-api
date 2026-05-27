@@ -12,4 +12,8 @@ public class ExternalIpCheckResponseDTO {
     private Boolean proxy;
     private Boolean tor;
     private Boolean datacenter;
+
+    private Integer externalRiskScore;
+    private String externalType;
+    private String externalProvider;
 }

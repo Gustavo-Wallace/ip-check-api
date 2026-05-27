@@ -56,6 +56,9 @@ public class IpAnalysisService {
                                 .anonymous(anonymous)
                                 .riskLevel(riskLevel)
                                 .source(AnalysisSource.EXTERNAL_API)
+                                .externalRiskScore(externalResponse.getExternalRiskScore())
+                                .externalType(externalResponse.getExternalType())
+                                .externalProvider(externalResponse.getExternalProvider())
                                 .build();
 
                 IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);
@@ -74,6 +77,9 @@ public class IpAnalysisService {
                                 .anonymous(ipAnalysis.getAnonymous())
                                 .riskLevel(ipAnalysis.getRiskLevel())
                                 .source(ipAnalysis.getSource())
+                                .externalRiskScore(ipAnalysis.getExternalRiskScore())
+                                .externalType(ipAnalysis.getExternalType())
+                                .externalProvider(ipAnalysis.getExternalProvider())
                                 .analyzedAt(ipAnalysis.getAnalyzedAt())
                                 .build();
         }
@@ -136,6 +142,8 @@ public class IpAnalysisService {
                                 .anonymous(anonymous)
                                 .riskLevel(riskLevel)
                                 .source(AnalysisSource.MANUAL_SIMULATION)
+                                .externalType("MANUAL")
+                                .externalProvider("Manual Simulation")
                                 .build();
 
                 IpAnalysis savedIpAnalysis = ipAnalysisRepository.save(ipAnalysis);

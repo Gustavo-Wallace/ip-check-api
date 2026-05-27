@@ -58,6 +58,14 @@ public class IpAnalysis {
     @Column(nullable = false, length = 50)
     private AnalysisSource source;
 
+    private Integer externalRiskScore;
+
+    @Column(length = 100)
+    private String externalType;
+
+    @Column(length = 255)
+    private String externalProvider;
+
     @Column(nullable = false)
     private LocalDateTime analyzedAt;
 

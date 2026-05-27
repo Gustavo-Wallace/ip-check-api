@@ -65,6 +65,7 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
         boolean proxy = isYes(ipData.get("proxy"));
         String type = getString(ipData.get("type"));
         Integer risk = getInteger(ipData.get("risk"));
+        String provider = getString(ipData.get("provider"));
 
         boolean vpn = "VPN".equalsIgnoreCase(type);
         boolean tor = "TOR".equalsIgnoreCase(type);
@@ -76,6 +77,9 @@ public class ProxyCheckIpIntelligenceClient implements IpIntelligenceClient {
                 .proxy(proxy)
                 .tor(tor)
                 .datacenter(datacenter)
+                .externalRiskScore(risk)
+                .externalType(type)
+                .externalProvider(provider)
                 .build();
     }
 
