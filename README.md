@@ -385,6 +385,22 @@ Future supported providers may include:
  - IPinfo
  - IPQualityScore
 
+## ProxyCheck Provider
+
+The project includes an initial ProxyCheck client implementation.
+
+```properties
+ip-intelligence.provider=proxycheck
+ip-intelligence.base-url=https://proxycheck.io/v2
+ip-intelligence.api-key=${IP_INTELLIGENCE_API_KEY:}
+```
+
+For local development, keep:
+```properties
+ip-intelligence.provider=mock
+```
+ProxyCheck free usage limits may vary by account and API version. Check the official documentation before production usage.
+
 ## Future Improvements
 
  - Integrate with a real external IP intelligence API
