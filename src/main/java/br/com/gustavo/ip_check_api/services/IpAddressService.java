@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import br.com.gustavo.ip_check_api.dtos.IpAddressCsvImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportAnalysisErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
@@ -167,6 +168,43 @@ public class IpAddressService {
                 .analysisErrors(analysisErrors)
                 .analyses(analyses)
                 .build();
+    }
+
+    public IpAddressImportResponseDTO importIpAddressesFromCsvText(IpAddressCsvImportRequestDTO requestDTO) {
+        List<String> addresses = new ArrayList<>();
+
+        String[] lines = requestDTO.getCsvContent().split("\\R");
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i].trim();
+
+            if (line.isBlank()) {
+                continue;
+            }
+
+            if (i == 0 && line.toLowerCase().contains("address")) {
+                continue;
+            }
+
+            String[] columns = line.split(",");
+
+            if (columns.length == 0) {
+                continue;
+            }
+
+            String address = columns[0].trim();
+
+            if (!address.isBlank()) {
+                addresses.add(address);
+            }
+        }
+
+        IpAddressImportRequestDTO importRequestDTO = new IpAddressImportRequestDTO();
+        importRequestDTO.setAddresses(addresses);
+        importRequestDTO.setDescription("Imported from CSV text");
+        importRequestDTO.setAnalyzeAfterImport(requestDTO.getAnalyzeAfterImport());
+
+        return importIpAddresses(importRequestDTO);
     }
 
 }

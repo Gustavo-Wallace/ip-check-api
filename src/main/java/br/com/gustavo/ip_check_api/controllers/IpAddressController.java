@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import br.com.gustavo.ip_check_api.dtos.IpAddressCsvImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
@@ -80,6 +81,13 @@ public class IpAddressController {
     @Operation(summary = "Activate IP address", description = "Activates a previously deactivated IP address.")
     public IpAddressResponseDTO activate(@PathVariable Long id) {
         return ipAddressService.activate(id);
+    }
+
+    @PostMapping("/import/csv-text")
+    @Operation(summary = "Import IP addresses from CSV text", description = "Imports IP addresses from a CSV text content. The first column must contain the IP address.")
+    public IpAddressImportResponseDTO importIpAddressesFromCsvText(
+            @RequestBody @Valid IpAddressCsvImportRequestDTO requestDTO) {
+        return ipAddressService.importIpAddressesFromCsvText(requestDTO);
     }
 
 }

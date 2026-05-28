@@ -184,6 +184,20 @@ Response:
 Duplicated IP addresses are ignored both when they already exist in the database and when they are repeated in the same import request.`importErrors` contains validation or persistence errors during import.
 `analysisErrors` contains errors that happened after an IP was imported successfully but failed during analysis.
 
+### Import IP Addresses From CSV Text
+
+```http
+POST /ips/import/csv-text
+```
+Request:
+```JSON
+{
+  "csvContent": "address,description\n8.8.8.8,Google DNS\n1.1.1.1,Cloudflare DNS",
+  "analyzeAfterImport": true
+}
+```
+The first column must contain the IP address.
+
 ### Deactivate IP Address
 ```http
 PATCH /ips/{id}/deactivate
