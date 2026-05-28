@@ -131,13 +131,20 @@ public class IpAddressService {
 
                 IpAddress savedIpAddress = ipAddressRepository.save(ipAddress);
 
-                imported.add(toResponseDTO(savedIpAddress));
+                IpAddressResponseDTO importedIpAddress = toResponseDTO(savedIpAddress);
+                imported.add(importedIpAddress);
 
                 if (Boolean.TRUE.equals(requestDTO.getAnalyzeAfterImport())) {
-                    analyses.add(ipAnalysisService.analyze(address));
+                    try {
+                        analyses.add(ipAnalysisService.analyze(address));
+                    } catch (Exception exception) {
+                        errors.add(IpAddressImportErrorDTO.builder()
+                                .address(address)
+                                .message("IP imported, but analysis failed: " + exception.getMessage())
+                                .build());
+                    }
                 }
 
-                imported.add(toResponseDTO(savedIpAddress));
             } catch (Exception exception) {
                 errors.add(IpAddressImportErrorDTO.builder()
                         .address(address)
