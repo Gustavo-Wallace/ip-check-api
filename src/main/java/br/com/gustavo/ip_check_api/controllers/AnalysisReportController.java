@@ -3,17 +3,18 @@ package br.com.gustavo.ip_check_api.controllers;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.services.IpAnalysisService;
+import br.com.gustavo.ip_check_api.utils.RiskLevelParser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +40,11 @@ public class AnalysisReportController {
     }
 
     @GetMapping("/risk-level/{riskLevel}")
-    @Operation(summary = "List analyses by risk level", description = "Returns all IP analyses matching the provided risk level.")
-    public List<IpAnalysisResponseDTO> findByRiskLevel(@PathVariable RiskLevel riskLevel) {
-        return ipAnalysisService.findByRiskLevel(riskLevel);
+    @Operation(summary = "List analyses by risk level", description = "Returns all IP analyses matching the provided risk level. Accepts values such as LOW, low, CRITICAL or critical.")
+    public List<IpAnalysisResponseDTO> findByRiskLevel(@PathVariable String riskLevel) {
+        RiskLevel parsedRiskLevel = RiskLevelParser.parse(riskLevel);
+
+        return ipAnalysisService.findByRiskLevel(parsedRiskLevel);
     }
 
     @GetMapping("/report/risk-level")

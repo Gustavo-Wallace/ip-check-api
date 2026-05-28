@@ -309,6 +309,7 @@ Available risk levels:
  - MEDIUM
  - HIGH
  - CRITICAL
+ Accepted values are case-insensitive.
 
 ### Analysis Summary Report
 ```http
