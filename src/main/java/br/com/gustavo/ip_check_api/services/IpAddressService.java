@@ -1,11 +1,15 @@
 package br.com.gustavo.ip_check_api.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportErrorDTO;
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
 import br.com.gustavo.ip_check_api.exceptions.ResourceNotFoundException;
@@ -93,6 +97,47 @@ public class IpAddressService {
     public Page<IpAddressResponseDTO> findAllPaged(Pageable pageable) {
         return ipAddressRepository.findAll(pageable)
                 .map(this::toResponseDTO);
+    }
+
+    public IpAddressImportResponseDTO importIpAddresses(IpAddressImportRequestDTO requestDTO) {
+        List<IpAddressResponseDTO> imported = new ArrayList<>();
+        List<String> duplicated = new ArrayList<>();
+        List<IpAddressImportErrorDTO> errors = new ArrayList<>();
+
+        for (String address : requestDTO.getAddresses()) {
+            try {
+                IpValidator.validate(address);
+
+                if (ipAddressRepository.findByAddress(address).isPresent()) {
+                    duplicated.add(address);
+                    continue;
+                }
+
+                IpAddress ipAddress = IpAddress.builder()
+                        .address(address)
+                        .description(requestDTO.getDescription())
+                        .build();
+
+                IpAddress savedIpAddress = ipAddressRepository.save(ipAddress);
+
+                imported.add(toResponseDTO(savedIpAddress));
+            } catch (Exception exception) {
+                errors.add(IpAddressImportErrorDTO.builder()
+                        .address(address)
+                        .message(exception.getMessage())
+                        .build());
+            }
+        }
+
+        return IpAddressImportResponseDTO.builder()
+                .totalReceived(requestDTO.getAddresses().size())
+                .importedCount(imported.size())
+                .duplicatedCount(duplicated.size())
+                .errorCount(errors.size())
+                .imported(imported)
+                .duplicated(duplicated)
+                .errors(errors)
+                .build();
     }
 
 }

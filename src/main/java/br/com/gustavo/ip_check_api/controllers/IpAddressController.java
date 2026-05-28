@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
 import br.com.gustavo.ip_check_api.services.IpAddressService;
@@ -41,6 +43,13 @@ public class IpAddressController {
     @Operation(summary = "List registered IP addresses", description = "Returns all registered IP addresses.")
     public List<IpAddressResponseDTO> findAll() {
         return ipAddressService.findAll();
+    }
+
+    @PostMapping("/import")
+    @Operation(summary = "Import multiple IP addresses", description = "Imports multiple IP addresses from a JSON list, ignoring duplicates and reporting invalid entries.")
+    public IpAddressImportResponseDTO importIpAddresses(
+            @RequestBody @Valid IpAddressImportRequestDTO requestDTO) {
+        return ipAddressService.importIpAddresses(requestDTO);
     }
 
     @GetMapping("/active")

@@ -149,6 +149,35 @@ Response:
 }
 ```
 
+### Import Multiple IP Addresses
+
+```http
+POST /ips/import
+```
+Request:
+```JSON
+{
+  "addresses": [
+    "8.8.8.8",
+    "1.1.1.1",
+    "999.999.999.999"
+  ],
+  "description": "Imported from JSON"
+}
+```
+Response:
+```JSON
+{
+  "totalReceived": 3,
+  "importedCount": 2,
+  "duplicatedCount": 0,
+  "errorCount": 1,
+  "imported": [],
+  "duplicated": [],
+  "errors": []
+}
+```
+
 ### Deactivate IP Address
 ```http
 PATCH /ips/{id}/deactivate
