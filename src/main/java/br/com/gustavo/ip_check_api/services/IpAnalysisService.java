@@ -402,4 +402,25 @@ public class IpAnalysisService {
                                 .toList();
         }
 
+        public List<IpAnalysisResponseDTO> findByCountry(String country) {
+                return ipAnalysisRepository.findByCountryIgnoreCase(country)
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
+
+        public List<IpAnalysisResponseDTO> findByExternalProvider(String externalProvider) {
+                return ipAnalysisRepository.findByExternalProviderContainingIgnoreCase(externalProvider)
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
+
+        public List<IpAnalysisResponseDTO> findByAsn(String asn) {
+                return ipAnalysisRepository.findByAsnIgnoreCase(asn)
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
+
 }

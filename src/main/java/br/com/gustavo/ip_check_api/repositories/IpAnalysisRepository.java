@@ -16,4 +16,10 @@ public interface IpAnalysisRepository extends JpaRepository<IpAnalysis, Long>, J
     List<IpAnalysis> findByRiskLevel(RiskLevel riskLevel);
 
     Optional<IpAnalysis> findTopByAddressOrderByAnalyzedAtDesc(String address);
+
+    List<IpAnalysis> findByCountryIgnoreCase(String country);
+
+    List<IpAnalysis> findByExternalProviderContainingIgnoreCase(String externalProvider);
+
+    List<IpAnalysis> findByAsnIgnoreCase(String asn);
 }

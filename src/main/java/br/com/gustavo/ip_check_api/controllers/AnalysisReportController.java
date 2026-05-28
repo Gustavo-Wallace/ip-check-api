@@ -59,6 +59,24 @@ public class AnalysisReportController {
         return ipAnalysisService.filterByIndicators(vpn, proxy, tor, datacenter, anonymous);
     }
 
+    @GetMapping("/country/{country}")
+    @Operation(summary = "List analyses by country", description = "Returns all IP analyses matching the provided country.")
+    public List<IpAnalysisResponseDTO> findByCountry(@PathVariable String country) {
+        return ipAnalysisService.findByCountry(country);
+    }
+
+    @GetMapping("/provider/{externalProvider}")
+    @Operation(summary = "List analyses by external provider", description = "Returns all IP analyses whose external provider contains the provided value.")
+    public List<IpAnalysisResponseDTO> findByExternalProvider(@PathVariable String externalProvider) {
+        return ipAnalysisService.findByExternalProvider(externalProvider);
+    }
+
+    @GetMapping("/asn/{asn}")
+    @Operation(summary = "List analyses by ASN", description = "Returns all IP analyses matching the provided ASN.")
+    public List<IpAnalysisResponseDTO> findByAsn(@PathVariable String asn) {
+        return ipAnalysisService.findByAsn(asn);
+    }
+
     @GetMapping("/report/risk-level")
     @Operation(summary = "Generate risk level report", description = "Returns the amount of analyses grouped by risk level.")
     public Map<RiskLevel, Long> countByRiskLevel() {

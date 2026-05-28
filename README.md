@@ -377,6 +377,29 @@ Available optional query parameters
  - datacenter
  - anonymous
 
+### List Analyses by Country
+```http
+GET /analyses/country/{country}
+```
+
+### List Analyses by External Provider
+```http
+GET /analyses/provider/{externalProvider}
+```
+Example:
+```bash
+curl http://localhost:8080/analyses/provider/Google
+```
+
+### List Analyses by ASN
+```http
+GET /analyses/asn/{asn}
+```
+
+```bash
+curl http://localhost:8080/analyses/asn/AS15169
+```
+
 ### List Analyses With Pagination
 ```http
 GET /analyses/page?page=0&size=10
