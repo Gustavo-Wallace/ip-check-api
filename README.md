@@ -169,16 +169,20 @@ When `analyzeAfterImport` is `true`, successfully imported IP addresses are anal
 Response:
 ```JSON
 {
-  "totalReceived": 3,
+  "totalReceived": 4,
   "importedCount": 2,
-  "duplicatedCount": 0,
+  "duplicatedCount": 1,
   "errorCount": 1,
   "imported": [],
   "duplicated": [],
-  "errors": []
+  "errors": [],
+  "importErrors": [],
+  "analysisErrors": [],
+  "analyses": []
 }
 ```
-Duplicated IP addresses are ignored both when they already exist in the database and when they are repeated in the same import request.
+Duplicated IP addresses are ignored both when they already exist in the database and when they are repeated in the same import request.`importErrors` contains validation or persistence errors during import.
+`analysisErrors` contains errors that happened after an IP was imported successfully but failed during analysis.
 
 ### Deactivate IP Address
 ```http

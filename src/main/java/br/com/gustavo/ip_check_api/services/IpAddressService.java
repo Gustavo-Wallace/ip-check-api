@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportAnalysisErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
@@ -106,7 +107,8 @@ public class IpAddressService {
     public IpAddressImportResponseDTO importIpAddresses(IpAddressImportRequestDTO requestDTO) {
         List<IpAddressResponseDTO> imported = new ArrayList<>();
         List<String> duplicated = new ArrayList<>();
-        List<IpAddressImportErrorDTO> errors = new ArrayList<>();
+        List<IpAddressImportErrorDTO> importErrors = new ArrayList<>();
+        List<IpAddressImportAnalysisErrorDTO> analysisErrors = new ArrayList<>();
         List<IpAnalysisResponseDTO> analyses = new ArrayList<>();
         Set<String> processedInRequest = new HashSet<>();
 
@@ -138,15 +140,15 @@ public class IpAddressService {
                     try {
                         analyses.add(ipAnalysisService.analyze(address));
                     } catch (Exception exception) {
-                        errors.add(IpAddressImportErrorDTO.builder()
+                        analysisErrors.add(IpAddressImportAnalysisErrorDTO.builder()
                                 .address(address)
-                                .message("IP imported, but analysis failed: " + exception.getMessage())
+                                .message(exception.getMessage())
                                 .build());
                     }
                 }
 
             } catch (Exception exception) {
-                errors.add(IpAddressImportErrorDTO.builder()
+                importErrors.add(IpAddressImportErrorDTO.builder()
                         .address(address)
                         .message(exception.getMessage())
                         .build());
@@ -157,10 +159,12 @@ public class IpAddressService {
                 .totalReceived(requestDTO.getAddresses().size())
                 .importedCount(imported.size())
                 .duplicatedCount(duplicated.size())
-                .errorCount(errors.size())
+                .errorCount(importErrors.size() + analysisErrors.size())
                 .imported(imported)
                 .duplicated(duplicated)
-                .errors(errors)
+                .errors(importErrors)
+                .importErrors(importErrors)
+                .analysisErrors(analysisErrors)
                 .analyses(analyses)
                 .build();
     }
