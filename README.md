@@ -198,6 +198,26 @@ Request:
 ```
 The first column must contain the IP address.
 
+### Import IP Addresses From CSV File
+
+```http
+POST /ips/import/csv-file
+```
+Example
+```bash
+curl -X POST http://localhost:8080/ips/import/csv-file \
+-F "file=@ips.csv" \
+-F "analyzeAfterImport=true"
+```
+CSV example:
+```csv
+address,description
+8.8.8.8,Google DNS
+1.1.1.1,Cloudflare DNS
+999.999.999.999,Invalid IP
+```
+The first column must contain the IP address.
+
 ### Deactivate IP Address
 ```http
 PATCH /ips/{id}/deactivate

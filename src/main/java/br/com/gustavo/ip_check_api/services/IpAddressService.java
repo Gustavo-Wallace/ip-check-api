@@ -1,5 +1,6 @@
 package br.com.gustavo.ip_check_api.services;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import br.com.gustavo.ip_check_api.dtos.IpAddressCsvImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportAnalysisErrorDTO;
@@ -205,6 +207,26 @@ public class IpAddressService {
         importRequestDTO.setAnalyzeAfterImport(requestDTO.getAnalyzeAfterImport());
 
         return importIpAddresses(importRequestDTO);
+    }
+
+    public IpAddressImportResponseDTO importIpAddressesFromCsvFile(
+            MultipartFile file,
+            Boolean analyzeAfterImport) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("CSV file is required");
+        }
+
+        try {
+            String csvContent = new String(file.getBytes(), StandardCharsets.UTF_8);
+
+            IpAddressCsvImportRequestDTO requestDTO = new IpAddressCsvImportRequestDTO();
+            requestDTO.setCsvContent(csvContent);
+            requestDTO.setAnalyzeAfterImport(analyzeAfterImport);
+
+            return importIpAddressesFromCsvText(requestDTO);
+        } catch (Exception exception) {
+            throw new IllegalArgumentException("Failed to read CSV file: " + exception.getMessage());
+        }
     }
 
 }
