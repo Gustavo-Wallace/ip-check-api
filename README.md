@@ -159,12 +159,13 @@ Request:
 {
   "addresses": [
     "8.8.8.8",
-    "1.1.1.1",
-    "999.999.999.999"
+    "1.1.1.1"
   ],
-  "description": "Imported from JSON"
+  "description": "Imported from JSON",
+  "analyzeAfterImport": true
 }
 ```
+When `analyzeAfterImport` is `true`, successfully imported IP addresses are analyzed immediately.
 Response:
 ```JSON
 {

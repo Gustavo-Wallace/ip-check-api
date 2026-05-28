@@ -17,4 +17,5 @@ public class IpAddressImportResponseDTO {
     private List<IpAddressResponseDTO> imported;
     private List<String> duplicated;
     private List<IpAddressImportErrorDTO> errors;
+    private List<IpAnalysisResponseDTO> analyses;
 }

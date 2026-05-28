@@ -3,15 +3,16 @@ package br.com.gustavo.ip_check_api.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
+import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.exceptions.ResourceNotFoundException;
 import br.com.gustavo.ip_check_api.models.IpAddress;
 import br.com.gustavo.ip_check_api.repositories.IpAddressRepository;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class IpAddressService {
 
     private final IpAddressRepository ipAddressRepository;
+    private final IpAnalysisService ipAnalysisService;
 
     public IpAddressResponseDTO create(IpAddressRequestDTO requestDTO) {
         IpValidator.validate(requestDTO.getAddress());
@@ -103,6 +105,7 @@ public class IpAddressService {
         List<IpAddressResponseDTO> imported = new ArrayList<>();
         List<String> duplicated = new ArrayList<>();
         List<IpAddressImportErrorDTO> errors = new ArrayList<>();
+        List<IpAnalysisResponseDTO> analyses = new ArrayList<>();
 
         for (String address : requestDTO.getAddresses()) {
             try {
@@ -121,6 +124,12 @@ public class IpAddressService {
                 IpAddress savedIpAddress = ipAddressRepository.save(ipAddress);
 
                 imported.add(toResponseDTO(savedIpAddress));
+
+                if (Boolean.TRUE.equals(requestDTO.getAnalyzeAfterImport())) {
+                    analyses.add(ipAnalysisService.analyze(address));
+                }
+
+                imported.add(toResponseDTO(savedIpAddress));
             } catch (Exception exception) {
                 errors.add(IpAddressImportErrorDTO.builder()
                         .address(address)
@@ -137,6 +146,7 @@ public class IpAddressService {
                 .imported(imported)
                 .duplicated(duplicated)
                 .errors(errors)
+                .analyses(analyses)
                 .build();
     }
 

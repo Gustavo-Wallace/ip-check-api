@@ -16,4 +16,6 @@ public class IpAddressImportRequestDTO {
 
     @Size(max = 255, message = "Description must have at most 255 characters")
     private String description;
+
+    private Boolean analyzeAfterImport;
 }
