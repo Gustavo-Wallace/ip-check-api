@@ -362,6 +362,21 @@ Response:
 }
 ```
 
+### Filter Analyses by Anonymity Indicators
+```http
+GET /analyses/filter?vpn=true&proxy=false&tor=false&datacenter=true&anonymous=false
+```
+Example:
+```bash
+curl "http://localhost:8080/analyses/filter?tor=true"
+```
+Available optional query parameters
+ - vpn
+ - proxy
+ - tor
+ - datacenter
+ - anonymous
+
 ### List Analyses With Pagination
 ```http
 GET /analyses/page?page=0&size=10

@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
 
 import br.com.gustavo.ip_check_api.clients.IpIntelligenceClientFactory;
 import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
@@ -357,6 +359,44 @@ public class IpAnalysisService {
 
         public List<IpAnalysisResponseDTO> findByRiskLevel(RiskLevel riskLevel) {
                 return ipAnalysisRepository.findByRiskLevel(riskLevel)
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
+
+        public List<IpAnalysisResponseDTO> filterByIndicators(
+                        Boolean vpn,
+                        Boolean proxy,
+                        Boolean tor,
+                        Boolean datacenter,
+                        Boolean anonymous) {
+                Specification<IpAnalysis> specification = (root, query, criteriaBuilder) -> {
+                        List<Predicate> predicates = new ArrayList<>();
+
+                        if (vpn != null) {
+                                predicates.add(criteriaBuilder.equal(root.get("vpn"), vpn));
+                        }
+
+                        if (proxy != null) {
+                                predicates.add(criteriaBuilder.equal(root.get("proxy"), proxy));
+                        }
+
+                        if (tor != null) {
+                                predicates.add(criteriaBuilder.equal(root.get("tor"), tor));
+                        }
+
+                        if (datacenter != null) {
+                                predicates.add(criteriaBuilder.equal(root.get("datacenter"), datacenter));
+                        }
+
+                        if (anonymous != null) {
+                                predicates.add(criteriaBuilder.equal(root.get("anonymous"), anonymous));
+                        }
+
+                        return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+                };
+
+                return ipAnalysisRepository.findAll(specification)
                                 .stream()
                                 .map(this::toResponseDTO)
                                 .toList();

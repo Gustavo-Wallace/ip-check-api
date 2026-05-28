@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
@@ -45,6 +46,17 @@ public class AnalysisReportController {
         RiskLevel parsedRiskLevel = RiskLevelParser.parse(riskLevel);
 
         return ipAnalysisService.findByRiskLevel(parsedRiskLevel);
+    }
+
+    @GetMapping("/filter")
+    @Operation(summary = "Filter analyses by anonymity indicators", description = "Returns IP analyses filtered by optional VPN, proxy, Tor, datacenter and anonymous indicators.")
+    public List<IpAnalysisResponseDTO> filterByIndicators(
+            @RequestParam(required = false) Boolean vpn,
+            @RequestParam(required = false) Boolean proxy,
+            @RequestParam(required = false) Boolean tor,
+            @RequestParam(required = false) Boolean datacenter,
+            @RequestParam(required = false) Boolean anonymous) {
+        return ipAnalysisService.filterByIndicators(vpn, proxy, tor, datacenter, anonymous);
     }
 
     @GetMapping("/report/risk-level")

@@ -1,13 +1,15 @@
 package br.com.gustavo.ip_check_api.repositories;
 
-import br.com.gustavo.ip_check_api.enums.RiskLevel;
-import br.com.gustavo.ip_check_api.models.IpAnalysis;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
 import java.util.Optional;
 
-public interface IpAnalysisRepository extends JpaRepository<IpAnalysis, Long> {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import br.com.gustavo.ip_check_api.enums.RiskLevel;
+import br.com.gustavo.ip_check_api.models.IpAnalysis;
+
+public interface IpAnalysisRepository extends JpaRepository<IpAnalysis, Long>, JpaSpecificationExecutor<IpAnalysis> {
 
     List<IpAnalysis> findByAddress(String address);
 
