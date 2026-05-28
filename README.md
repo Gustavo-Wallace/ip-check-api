@@ -178,6 +178,7 @@ Response:
   "errors": []
 }
 ```
+Duplicated IP addresses are ignored both when they already exist in the database and when they are repeated in the same import request.
 
 ### Deactivate IP Address
 ```http

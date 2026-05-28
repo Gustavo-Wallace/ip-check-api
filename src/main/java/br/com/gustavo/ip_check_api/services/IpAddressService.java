@@ -1,7 +1,9 @@
 package br.com.gustavo.ip_check_api.services;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -106,9 +108,15 @@ public class IpAddressService {
         List<String> duplicated = new ArrayList<>();
         List<IpAddressImportErrorDTO> errors = new ArrayList<>();
         List<IpAnalysisResponseDTO> analyses = new ArrayList<>();
+        Set<String> processedInRequest = new HashSet<>();
 
         for (String address : requestDTO.getAddresses()) {
             try {
+                if (!processedInRequest.add(address)) {
+                    duplicated.add(address);
+                    continue;
+                }
+
                 IpValidator.validate(address);
 
                 if (ipAddressRepository.findByAddress(address).isPresent()) {
