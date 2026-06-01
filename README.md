@@ -216,7 +216,7 @@ address,description
 1.1.1.1,Cloudflare DNS
 999.999.999.999,Invalid IP
 ```
-The first column must contain the IP address.
+The first column must contain the IP address. The second column, when present, is used as the IP description.
 
 ### Deactivate IP Address
 ```http

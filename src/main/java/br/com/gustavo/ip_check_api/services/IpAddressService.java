@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import br.com.gustavo.ip_check_api.dtos.IpAddressCsvImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportAnalysisErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportErrorDTO;
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportItemDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
@@ -108,72 +109,19 @@ public class IpAddressService {
     }
 
     public IpAddressImportResponseDTO importIpAddresses(IpAddressImportRequestDTO requestDTO) {
-        List<IpAddressResponseDTO> imported = new ArrayList<>();
-        List<String> duplicated = new ArrayList<>();
-        List<IpAddressImportErrorDTO> importErrors = new ArrayList<>();
-        List<IpAddressImportAnalysisErrorDTO> analysisErrors = new ArrayList<>();
-        List<IpAnalysisResponseDTO> analyses = new ArrayList<>();
-        Set<String> processedInRequest = new HashSet<>();
-
-        for (String address : requestDTO.getAddresses()) {
-            try {
-                if (!processedInRequest.add(address)) {
-                    duplicated.add(address);
-                    continue;
-                }
-
-                IpValidator.validate(address);
-
-                if (ipAddressRepository.findByAddress(address).isPresent()) {
-                    duplicated.add(address);
-                    continue;
-                }
-
-                IpAddress ipAddress = IpAddress.builder()
+        List<IpAddressImportItemDTO> items = requestDTO.getAddresses()
+                .stream()
+                .map(address -> IpAddressImportItemDTO.builder()
                         .address(address)
                         .description(requestDTO.getDescription())
-                        .build();
+                        .build())
+                .toList();
 
-                IpAddress savedIpAddress = ipAddressRepository.save(ipAddress);
-
-                IpAddressResponseDTO importedIpAddress = toResponseDTO(savedIpAddress);
-                imported.add(importedIpAddress);
-
-                if (Boolean.TRUE.equals(requestDTO.getAnalyzeAfterImport())) {
-                    try {
-                        analyses.add(ipAnalysisService.analyze(address));
-                    } catch (Exception exception) {
-                        analysisErrors.add(IpAddressImportAnalysisErrorDTO.builder()
-                                .address(address)
-                                .message(exception.getMessage())
-                                .build());
-                    }
-                }
-
-            } catch (Exception exception) {
-                importErrors.add(IpAddressImportErrorDTO.builder()
-                        .address(address)
-                        .message(exception.getMessage())
-                        .build());
-            }
-        }
-
-        return IpAddressImportResponseDTO.builder()
-                .totalReceived(requestDTO.getAddresses().size())
-                .importedCount(imported.size())
-                .duplicatedCount(duplicated.size())
-                .errorCount(importErrors.size() + analysisErrors.size())
-                .imported(imported)
-                .duplicated(duplicated)
-                .errors(importErrors)
-                .importErrors(importErrors)
-                .analysisErrors(analysisErrors)
-                .analyses(analyses)
-                .build();
+        return importIpAddressItems(items, requestDTO.getAnalyzeAfterImport());
     }
 
     public IpAddressImportResponseDTO importIpAddressesFromCsvText(IpAddressCsvImportRequestDTO requestDTO) {
-        List<String> addresses = new ArrayList<>();
+        List<IpAddressImportItemDTO> items = new ArrayList<>();
 
         String[] lines = requestDTO.getCsvContent().split("\\R");
 
@@ -188,7 +136,7 @@ public class IpAddressService {
                 continue;
             }
 
-            String[] columns = line.split(",");
+            String[] columns = line.split(",", -1);
 
             if (columns.length == 0) {
                 continue;
@@ -196,17 +144,23 @@ public class IpAddressService {
 
             String address = columns[0].trim();
 
-            if (!address.isBlank()) {
-                addresses.add(address);
+            if (address.isBlank()) {
+                continue;
             }
+
+            String description = null;
+
+            if (columns.length > 1 && !columns[1].trim().isBlank()) {
+                description = columns[1].trim();
+            }
+
+            items.add(IpAddressImportItemDTO.builder()
+                    .address(address)
+                    .description(description != null ? description : "Imported from CSV text")
+                    .build());
         }
 
-        IpAddressImportRequestDTO importRequestDTO = new IpAddressImportRequestDTO();
-        importRequestDTO.setAddresses(addresses);
-        importRequestDTO.setDescription("Imported from CSV text");
-        importRequestDTO.setAnalyzeAfterImport(requestDTO.getAnalyzeAfterImport());
-
-        return importIpAddresses(importRequestDTO);
+        return importIpAddressItems(items, requestDTO.getAnalyzeAfterImport());
     }
 
     public IpAddressImportResponseDTO importIpAddressesFromCsvFile(
@@ -227,6 +181,74 @@ public class IpAddressService {
         } catch (Exception exception) {
             throw new IllegalArgumentException("Failed to read CSV file: " + exception.getMessage());
         }
+    }
+
+    private IpAddressImportResponseDTO importIpAddressItems(
+            List<IpAddressImportItemDTO> items,
+            Boolean analyzeAfterImport) {
+        List<IpAddressResponseDTO> imported = new ArrayList<>();
+        List<String> duplicated = new ArrayList<>();
+        List<IpAddressImportErrorDTO> importErrors = new ArrayList<>();
+        List<IpAddressImportAnalysisErrorDTO> analysisErrors = new ArrayList<>();
+        List<IpAnalysisResponseDTO> analyses = new ArrayList<>();
+        Set<String> processedInRequest = new HashSet<>();
+
+        for (IpAddressImportItemDTO item : items) {
+            String address = item.getAddress();
+
+            try {
+                if (!processedInRequest.add(address)) {
+                    duplicated.add(address);
+                    continue;
+                }
+
+                IpValidator.validate(address);
+
+                if (ipAddressRepository.findByAddress(address).isPresent()) {
+                    duplicated.add(address);
+                    continue;
+                }
+
+                IpAddress ipAddress = IpAddress.builder()
+                        .address(address)
+                        .description(item.getDescription())
+                        .build();
+
+                IpAddress savedIpAddress = ipAddressRepository.save(ipAddress);
+
+                IpAddressResponseDTO importedIpAddress = toResponseDTO(savedIpAddress);
+                imported.add(importedIpAddress);
+
+                if (Boolean.TRUE.equals(analyzeAfterImport)) {
+                    try {
+                        analyses.add(ipAnalysisService.analyze(address));
+                    } catch (Exception exception) {
+                        analysisErrors.add(IpAddressImportAnalysisErrorDTO.builder()
+                                .address(address)
+                                .message(exception.getMessage())
+                                .build());
+                    }
+                }
+            } catch (Exception exception) {
+                importErrors.add(IpAddressImportErrorDTO.builder()
+                        .address(address)
+                        .message(exception.getMessage())
+                        .build());
+            }
+        }
+
+        return IpAddressImportResponseDTO.builder()
+                .totalReceived(items.size())
+                .importedCount(imported.size())
+                .duplicatedCount(duplicated.size())
+                .errorCount(importErrors.size() + analysisErrors.size())
+                .imported(imported)
+                .duplicated(duplicated)
+                .errors(importErrors)
+                .importErrors(importErrors)
+                .analysisErrors(analysisErrors)
+                .analyses(analyses)
+                .build();
     }
 
 }
