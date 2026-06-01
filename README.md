@@ -604,6 +604,28 @@ set POSTGRES_DB_PASSWORD=your_password
 mvnw.cmd spring-boot:run
 ```
 
+## Environment Example
+
+The project includes a `.env.example` file with the required environment variables.
+
+Copy it and configure your local values:
+
+```bash
+cp .env.example .env
+```
+
+On Windows CMD, environment variables can be set manually:
+
+```bat
+set SPRING_PROFILES_ACTIVE=postgres
+set POSTGRES_DB_URL=jdbc:postgresql://localhost:5432/ip_check_db
+set POSTGRES_DB_USERNAME=postgres
+set POSTGRES_DB_PASSWORD=your_password
+set IP_INTELLIGENCE_API_KEY=your_api_key
+mvnw.cmd spring-boot:run
+```
+Do not commit real API keys or database passwords.
+
 ## Future Improvements
 
  - Integrate with a real external IP intelligence API
