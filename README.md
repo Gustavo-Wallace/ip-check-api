@@ -217,6 +217,18 @@ address,description
 999.999.999.999,Invalid IP
 ```
 The first column must contain the IP address. The second column, when present, is used as the IP description.
+CSV file upload validation:
+
+- File is required
+- File must not be empty
+- File extension must be `.csv`
+- Default maximum size is 1 MB
+
+Configuration:
+
+```properties
+ip-import.max-csv-file-size-bytes=1048576
+```
 
 ### Deactivate IP Address
 ```http

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.com.gustavo.ip_check_api.config.IpImportProperties;
 import br.com.gustavo.ip_check_api.dtos.IpAddressCsvImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportAnalysisErrorDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportErrorDTO;
@@ -32,6 +33,7 @@ public class IpAddressService {
 
     private final IpAddressRepository ipAddressRepository;
     private final IpAnalysisService ipAnalysisService;
+    private final IpImportProperties ipImportProperties;
 
     public IpAddressResponseDTO create(IpAddressRequestDTO requestDTO) {
         IpValidator.validate(requestDTO.getAddress());
@@ -168,6 +170,18 @@ public class IpAddressService {
             Boolean analyzeAfterImport) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("CSV file is required");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+
+        if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".csv")) {
+            throw new IllegalArgumentException("File must be a CSV file");
+        }
+
+        Long maxCsvFileSizeBytes = ipImportProperties.getMaxCsvFileSizeBytes();
+
+        if (maxCsvFileSizeBytes != null && file.getSize() > maxCsvFileSizeBytes) {
+            throw new IllegalArgumentException("CSV file exceeds maximum allowed size");
         }
 
         try {
