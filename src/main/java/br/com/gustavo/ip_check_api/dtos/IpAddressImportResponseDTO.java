@@ -14,6 +14,13 @@ public class IpAddressImportResponseDTO {
     private Integer duplicatedCount;
     private Integer errorCount;
 
+    private Integer analysisCount;
+    private Long lowRiskCount;
+    private Long attentionRiskCount;
+    private Long mediumRiskCount;
+    private Long highRiskCount;
+    private Long criticalRiskCount;
+
     private List<IpAddressResponseDTO> imported;
     private List<String> duplicated;
     private List<IpAddressImportErrorDTO> errors;

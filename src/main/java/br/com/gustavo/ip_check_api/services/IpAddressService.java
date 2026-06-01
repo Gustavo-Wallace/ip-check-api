@@ -21,6 +21,7 @@ import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
+import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.exceptions.ResourceNotFoundException;
 import br.com.gustavo.ip_check_api.models.IpAddress;
 import br.com.gustavo.ip_check_api.repositories.IpAddressRepository;
@@ -250,12 +251,23 @@ public class IpAddressService {
                         .build());
             }
         }
+        long lowRiskCount = countAnalysesByRiskLevel(analyses, RiskLevel.LOW);
+        long attentionRiskCount = countAnalysesByRiskLevel(analyses, RiskLevel.ATTENTION);
+        long mediumRiskCount = countAnalysesByRiskLevel(analyses, RiskLevel.MEDIUM);
+        long highRiskCount = countAnalysesByRiskLevel(analyses, RiskLevel.HIGH);
+        long criticalRiskCount = countAnalysesByRiskLevel(analyses, RiskLevel.CRITICAL);
 
         return IpAddressImportResponseDTO.builder()
                 .totalReceived(items.size())
                 .importedCount(imported.size())
                 .duplicatedCount(duplicated.size())
                 .errorCount(importErrors.size() + analysisErrors.size())
+                .analysisCount(analyses.size())
+                .lowRiskCount(lowRiskCount)
+                .attentionRiskCount(attentionRiskCount)
+                .mediumRiskCount(mediumRiskCount)
+                .highRiskCount(highRiskCount)
+                .criticalRiskCount(criticalRiskCount)
                 .imported(imported)
                 .duplicated(duplicated)
                 .errors(importErrors)
@@ -263,6 +275,14 @@ public class IpAddressService {
                 .analysisErrors(analysisErrors)
                 .analyses(analyses)
                 .build();
+    }
+
+    private long countAnalysesByRiskLevel(
+            List<IpAnalysisResponseDTO> analyses,
+            RiskLevel riskLevel) {
+        return analyses.stream()
+                .filter(analysis -> analysis.getRiskLevel() == riskLevel)
+                .count();
     }
 
 }

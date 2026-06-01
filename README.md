@@ -178,7 +178,13 @@ Response:
   "errors": [],
   "importErrors": [],
   "analysisErrors": [],
-  "analyses": []
+  "analyses": [],
+  "analysisCount": 2,
+  "lowRiskCount": 2,
+  "attentionRiskCount": 0,
+  "mediumRiskCount": 0,
+  "highRiskCount": 0,
+  "criticalRiskCount": 0
 }
 ```
 Duplicated IP addresses are ignored both when they already exist in the database and when they are repeated in the same import request.`importErrors` contains validation or persistence errors during import.
