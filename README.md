@@ -579,6 +579,31 @@ ip-intelligence.provider=mock
 ```
 ProxyCheck free usage limits may vary by account and API version. Check the official documentation before production usage.
 
+## Spring Profiles
+
+The project uses Spring profiles to separate development and database configurations.
+
+### Dev Profile
+
+Default profile:
+
+```properties
+spring.profiles.active=dev
+```
+Uses H2 in-memory database.
+
+### PostgreSQL Profile
+
+To run with PostgreSQL:
+
+```bat
+set SPRING_PROFILES_ACTIVE=postgres
+set POSTGRES_DB_URL=jdbc:postgresql://localhost:5432/ip_check_db
+set POSTGRES_DB_USERNAME=postgres
+set POSTGRES_DB_PASSWORD=your_password
+mvnw.cmd spring-boot:run
+```
+
 ## Future Improvements
 
  - Integrate with a real external IP intelligence API
