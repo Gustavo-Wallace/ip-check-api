@@ -21,6 +21,7 @@ import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
+import br.com.gustavo.ip_check_api.services.IpAddressImportService;
 import br.com.gustavo.ip_check_api.services.IpAddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 public class IpAddressController {
 
     private final IpAddressService ipAddressService;
+    private final IpAddressImportService ipAddressImportService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -52,7 +54,7 @@ public class IpAddressController {
     @Operation(summary = "Import multiple IP addresses", description = "Imports multiple IP addresses from a JSON list, ignoring duplicates and reporting invalid entries.")
     public IpAddressImportResponseDTO importIpAddresses(
             @RequestBody @Valid IpAddressImportRequestDTO requestDTO) {
-        return ipAddressService.importIpAddresses(requestDTO);
+        return ipAddressImportService.importIpAddresses(requestDTO);
     }
 
     @GetMapping("/active")
@@ -89,7 +91,7 @@ public class IpAddressController {
     @Operation(summary = "Import IP addresses from CSV text", description = "Imports IP addresses from a CSV text content. The first column must contain the IP address.")
     public IpAddressImportResponseDTO importIpAddressesFromCsvText(
             @RequestBody @Valid IpAddressCsvImportRequestDTO requestDTO) {
-        return ipAddressService.importIpAddressesFromCsvText(requestDTO);
+        return ipAddressImportService.importIpAddressesFromCsvText(requestDTO);
     }
 
     @PostMapping(value = "/import/csv-file", consumes = "multipart/form-data")
@@ -97,7 +99,7 @@ public class IpAddressController {
     public IpAddressImportResponseDTO importIpAddressesFromCsvFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false, defaultValue = "false") Boolean analyzeAfterImport) {
-        return ipAddressService.importIpAddressesFromCsvFile(file, analyzeAfterImport);
+        return ipAddressImportService.importIpAddressesFromCsvFile(file, analyzeAfterImport);
     }
 
 }
