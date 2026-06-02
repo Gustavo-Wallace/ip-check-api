@@ -25,6 +25,7 @@ import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.exceptions.ResourceNotFoundException;
 import br.com.gustavo.ip_check_api.models.IpAddress;
 import br.com.gustavo.ip_check_api.repositories.IpAddressRepository;
+import br.com.gustavo.ip_check_api.utils.IpAddressCsvParser;
 import br.com.gustavo.ip_check_api.utils.IpValidator;
 import lombok.RequiredArgsConstructor;
 
@@ -124,44 +125,7 @@ public class IpAddressService {
     }
 
     public IpAddressImportResponseDTO importIpAddressesFromCsvText(IpAddressCsvImportRequestDTO requestDTO) {
-        List<IpAddressImportItemDTO> items = new ArrayList<>();
-
-        String[] lines = requestDTO.getCsvContent().split("\\R");
-
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i].trim();
-
-            if (line.isBlank()) {
-                continue;
-            }
-
-            if (i == 0 && line.toLowerCase().contains("address")) {
-                continue;
-            }
-
-            String[] columns = line.split(",", -1);
-
-            if (columns.length == 0) {
-                continue;
-            }
-
-            String address = columns[0].trim();
-
-            if (address.isBlank()) {
-                continue;
-            }
-
-            String description = null;
-
-            if (columns.length > 1 && !columns[1].trim().isBlank()) {
-                description = columns[1].trim();
-            }
-
-            items.add(IpAddressImportItemDTO.builder()
-                    .address(address)
-                    .description(description != null ? description : "Imported from CSV text")
-                    .build());
-        }
+        List<IpAddressImportItemDTO> items = IpAddressCsvParser.parse(requestDTO.getCsvContent());
 
         return importIpAddressItems(items, requestDTO.getAnalyzeAfterImport());
     }
