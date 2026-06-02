@@ -22,10 +22,6 @@ public class RiskLevelCalculator {
             return RiskLevel.CRITICAL;
         }
 
-        if (Boolean.TRUE.equals(anonymous) && Boolean.TRUE.equals(proxy)) {
-            return RiskLevel.HIGH;
-        }
-
         if (Boolean.TRUE.equals(vpn) && Boolean.TRUE.equals(proxy)) {
             return RiskLevel.HIGH;
         }
