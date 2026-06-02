@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import jakarta.persistence.criteria.Predicate;
+import org.springframework.stereotype.Service;
 
 import br.com.gustavo.ip_check_api.clients.IpIntelligenceClientFactory;
 import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
@@ -28,6 +27,8 @@ import br.com.gustavo.ip_check_api.models.IpAnalysis;
 import br.com.gustavo.ip_check_api.repositories.IpAddressRepository;
 import br.com.gustavo.ip_check_api.repositories.IpAnalysisRepository;
 import br.com.gustavo.ip_check_api.utils.IpValidator;
+import br.com.gustavo.ip_check_api.utils.RiskLevelCalculator;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -56,7 +57,7 @@ public class IpAnalysisService {
                 Boolean datacenter = Boolean.TRUE.equals(externalResponse.getDatacenter());
                 Boolean anonymous = vpn || proxy || tor;
 
-                RiskLevel riskLevel = calculateRiskLevel(
+                RiskLevel riskLevel = RiskLevelCalculator.calculate(
                                 vpn,
                                 proxy,
                                 tor,
@@ -120,52 +121,6 @@ public class IpAnalysisService {
                                 .toList();
         }
 
-        private RiskLevel calculateRiskLevel(
-                        Boolean vpn,
-                        Boolean proxy,
-                        Boolean tor,
-                        Boolean datacenter,
-                        Boolean anonymous,
-                        Integer externalRiskScore) {
-                if (Boolean.TRUE.equals(tor)) {
-                        return RiskLevel.CRITICAL;
-                }
-
-                if (externalRiskScore != null && externalRiskScore >= 90) {
-                        return RiskLevel.CRITICAL;
-                }
-
-                if (Boolean.TRUE.equals(anonymous) && Boolean.TRUE.equals(proxy)) {
-                        return RiskLevel.HIGH;
-                }
-
-                if (Boolean.TRUE.equals(vpn) && Boolean.TRUE.equals(proxy)) {
-                        return RiskLevel.HIGH;
-                }
-
-                if (externalRiskScore != null && externalRiskScore >= 70) {
-                        return RiskLevel.HIGH;
-                }
-
-                if (Boolean.TRUE.equals(vpn) || Boolean.TRUE.equals(proxy)) {
-                        return RiskLevel.MEDIUM;
-                }
-
-                if (externalRiskScore != null && externalRiskScore >= 40) {
-                        return RiskLevel.MEDIUM;
-                }
-
-                if (Boolean.TRUE.equals(datacenter)) {
-                        return RiskLevel.ATTENTION;
-                }
-
-                if (externalRiskScore != null && externalRiskScore >= 20) {
-                        return RiskLevel.ATTENTION;
-                }
-
-                return RiskLevel.LOW;
-        }
-
         public IpAnalysisResponseDTO analyzeManually(String address, IpAnalysisManualRequestDTO requestDTO) {
                 IpValidator.validate(address);
 
@@ -175,7 +130,7 @@ public class IpAnalysisService {
                 Boolean datacenter = Boolean.TRUE.equals(requestDTO.getDatacenter());
                 Boolean anonymous = vpn || proxy || tor;
 
-                RiskLevel riskLevel = calculateRiskLevel(
+                RiskLevel riskLevel = RiskLevelCalculator.calculate(
                                 vpn,
                                 proxy,
                                 tor,
@@ -309,7 +264,7 @@ public class IpAnalysisService {
 
                 RiskLevel highestRiskLevel = analyses.stream()
                                 .map(IpAnalysis::getRiskLevel)
-                                .max(this::compareRiskLevel)
+                                .max(RiskLevelCalculator::compare)
                                 .orElse(RiskLevel.LOW);
 
                 return AnalysisSummaryReportDTO.builder()
@@ -321,20 +276,6 @@ public class IpAnalysisService {
                                 .datacenterCount(datacenterCount)
                                 .highestRiskLevel(highestRiskLevel)
                                 .build();
-        }
-
-        private int compareRiskLevel(RiskLevel first, RiskLevel second) {
-                return Integer.compare(getRiskWeight(first), getRiskWeight(second));
-        }
-
-        private int getRiskWeight(RiskLevel riskLevel) {
-                return switch (riskLevel) {
-                        case LOW -> 1;
-                        case ATTENTION -> 2;
-                        case MEDIUM -> 3;
-                        case HIGH -> 4;
-                        case CRITICAL -> 5;
-                };
         }
 
         public Page<IpAnalysisResponseDTO> findAllPaged(Pageable pageable) {
