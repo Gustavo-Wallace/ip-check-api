@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.com.gustavo.ip_check_api.config.IpImportProperties;
 import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
+import br.com.gustavo.ip_check_api.dtos.IpAddressCsvImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
@@ -220,6 +221,72 @@ class IpAddressControllerTest {
                         {
                           "addresses": [],
                           "description": "Empty import",
+                          "analyzeAfterImport": false
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldImportIpAddressesFromCsvText() throws Exception {
+        IpAddressImportResponseDTO responseDTO = IpAddressImportResponseDTO.builder()
+                .totalReceived(2)
+                .importedCount(2)
+                .duplicatedCount(0)
+                .errorCount(0)
+                .analysisCount(0)
+                .lowRiskCount(0L)
+                .attentionRiskCount(0L)
+                .mediumRiskCount(0L)
+                .highRiskCount(0L)
+                .criticalRiskCount(0L)
+                .imported(List.of(
+                        IpAddressResponseDTO.builder()
+                                .id(1L)
+                                .address("8.8.8.8")
+                                .description("Google DNS")
+                                .active(true)
+                                .createdAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                                .build(),
+                        IpAddressResponseDTO.builder()
+                                .id(2L)
+                                .address("1.1.1.1")
+                                .description("Cloudflare DNS")
+                                .active(true)
+                                .createdAt(LocalDateTime.of(2026, 6, 2, 15, 5))
+                                .build()))
+                .duplicated(List.of())
+                .errors(List.of())
+                .importErrors(List.of())
+                .analysisErrors(List.of())
+                .analyses(List.of())
+                .build();
+
+        when(ipAddressImportService.importIpAddressesFromCsvText(any(IpAddressCsvImportRequestDTO.class)))
+                .thenReturn(responseDTO);
+
+        mockMvc.perform(post("/ips/import/csv-text")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                          "csvContent": "address,description\\n8.8.8.8,Google DNS\\n1.1.1.1,Cloudflare DNS",
+                          "analyzeAfterImport": false
+                        }
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalReceived").value(2))
+                .andExpect(jsonPath("$.importedCount").value(2))
+                .andExpect(jsonPath("$.imported[0].description").value("Google DNS"))
+                .andExpect(jsonPath("$.imported[1].description").value("Cloudflare DNS"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCsvContentIsBlank() throws Exception {
+        mockMvc.perform(post("/ips/import/csv-text")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                          "csvContent": "",
                           "analyzeAfterImport": false
                         }
                         """))
