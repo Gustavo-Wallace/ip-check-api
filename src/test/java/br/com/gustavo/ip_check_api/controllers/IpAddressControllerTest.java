@@ -4,17 +4,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import br.com.gustavo.ip_check_api.config.IpImportProperties;
 import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
+import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
 import br.com.gustavo.ip_check_api.services.IpAddressImportService;
 import br.com.gustavo.ip_check_api.services.IpAddressService;
@@ -110,5 +114,43 @@ class IpAddressControllerTest {
                 .andExpect(jsonPath("$.active").value(true));
     }
 
-    
+    @Test
+    void shouldCreateIpAddress() throws Exception {
+        IpAddressResponseDTO createdIpAddress = IpAddressResponseDTO.builder()
+                .id(1L)
+                .address("8.8.8.8")
+                .description("Google DNS")
+                .active(true)
+                .createdAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                .build();
+
+        when(ipAddressService.create(any(IpAddressRequestDTO.class)))
+                .thenReturn(createdIpAddress);
+
+        mockMvc.perform(post("/ips")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                          "address": "8.8.8.8",
+                          "description": "Google DNS"
+                        }
+                        """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.address").value("8.8.8.8"))
+                .andExpect(jsonPath("$.description").value("Google DNS"))
+                .andExpect(jsonPath("$.active").value(true));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingIpAddressWithoutAddress() throws Exception {
+        mockMvc.perform(post("/ips")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                          "description": "Missing address"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
 }
