@@ -18,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.com.gustavo.ip_check_api.config.IpImportProperties;
 import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportRequestDTO;
+import br.com.gustavo.ip_check_api.dtos.IpAddressImportResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAddressResponseDTO;
 import br.com.gustavo.ip_check_api.services.IpAddressImportService;
@@ -149,6 +151,76 @@ class IpAddressControllerTest {
                 .content("""
                         {
                           "description": "Missing address"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldImportIpAddresses() throws Exception {
+        IpAddressImportResponseDTO responseDTO = IpAddressImportResponseDTO.builder()
+                .totalReceived(2)
+                .importedCount(2)
+                .duplicatedCount(0)
+                .errorCount(0)
+                .analysisCount(0)
+                .lowRiskCount(0L)
+                .attentionRiskCount(0L)
+                .mediumRiskCount(0L)
+                .highRiskCount(0L)
+                .criticalRiskCount(0L)
+                .imported(List.of(
+                        IpAddressResponseDTO.builder()
+                                .id(1L)
+                                .address("8.8.8.8")
+                                .description("Google DNS")
+                                .active(true)
+                                .createdAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                                .build(),
+                        IpAddressResponseDTO.builder()
+                                .id(2L)
+                                .address("1.1.1.1")
+                                .description("Cloudflare DNS")
+                                .active(true)
+                                .createdAt(LocalDateTime.of(2026, 6, 2, 15, 5))
+                                .build()))
+                .duplicated(List.of())
+                .errors(List.of())
+                .importErrors(List.of())
+                .analysisErrors(List.of())
+                .analyses(List.of())
+                .build();
+
+        when(ipAddressImportService.importIpAddresses(any(IpAddressImportRequestDTO.class)))
+                .thenReturn(responseDTO);
+
+        mockMvc.perform(post("/ips/import")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                          "addresses": ["8.8.8.8", "1.1.1.1"],
+                          "description": "Imported JSON",
+                          "analyzeAfterImport": false
+                        }
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalReceived").value(2))
+                .andExpect(jsonPath("$.importedCount").value(2))
+                .andExpect(jsonPath("$.duplicatedCount").value(0))
+                .andExpect(jsonPath("$.errorCount").value(0))
+                .andExpect(jsonPath("$.imported[0].address").value("8.8.8.8"))
+                .andExpect(jsonPath("$.imported[1].address").value("1.1.1.1"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenImportAddressListIsEmpty() throws Exception {
+        mockMvc.perform(post("/ips/import")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                          "addresses": [],
+                          "description": "Empty import",
+                          "analyzeAfterImport": false
                         }
                         """))
                 .andExpect(status().isBadRequest());
