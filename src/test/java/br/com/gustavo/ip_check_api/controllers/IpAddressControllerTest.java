@@ -68,4 +68,47 @@ class IpAddressControllerTest {
                 .andExpect(jsonPath("$[1].description").value("Cloudflare DNS"))
                 .andExpect(jsonPath("$[1].active").value(true));
     }
+
+    @Test
+    void shouldListActiveIpAddresses() throws Exception {
+        List<IpAddressResponseDTO> activeIpAddresses = List.of(
+                IpAddressResponseDTO.builder()
+                        .id(1L)
+                        .address("8.8.8.8")
+                        .description("Google DNS")
+                        .active(true)
+                        .createdAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                        .build());
+
+        when(ipAddressService.findAllActive()).thenReturn(activeIpAddresses);
+
+        mockMvc.perform(get("/ips/active"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].address").value("8.8.8.8"))
+                .andExpect(jsonPath("$[0].description").value("Google DNS"))
+                .andExpect(jsonPath("$[0].active").value(true));
+    }
+
+    @Test
+    void shouldFindIpAddressById() throws Exception {
+        IpAddressResponseDTO ipAddress = IpAddressResponseDTO.builder()
+                .id(1L)
+                .address("8.8.8.8")
+                .description("Google DNS")
+                .active(true)
+                .createdAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                .build();
+
+        when(ipAddressService.findById(1L)).thenReturn(ipAddress);
+
+        mockMvc.perform(get("/ips/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.address").value("8.8.8.8"))
+                .andExpect(jsonPath("$.description").value("Google DNS"))
+                .andExpect(jsonPath("$.active").value(true));
+    }
+
+    
 }
