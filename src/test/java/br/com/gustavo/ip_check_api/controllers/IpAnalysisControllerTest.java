@@ -15,10 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -134,5 +136,76 @@ class IpAnalysisControllerTest {
                 .andExpect(jsonPath("$.source").value("MANUAL_SIMULATION"))
                 .andExpect(jsonPath("$.externalType").value("Manual"))
                 .andExpect(jsonPath("$.externalProvider").value("Manual input"));
+    }
+
+    @Test
+    void shouldFindAnalysesByIpAddress() throws Exception {
+        List<IpAnalysisResponseDTO> analyses = List.of(
+                IpAnalysisResponseDTO.builder()
+                        .id(1L)
+                        .address("8.8.8.8")
+                        .vpn(false)
+                        .proxy(false)
+                        .tor(false)
+                        .datacenter(false)
+                        .anonymous(false)
+                        .riskLevel(RiskLevel.LOW)
+                        .source(AnalysisSource.EXTERNAL_API)
+                        .externalRiskScore(0)
+                        .externalType("Business")
+                        .externalProvider("Google LLC")
+                        .asn("AS15169")
+                        .country("United States")
+                        .city("Mountain View")
+                        .hostname("dns.google")
+                        .networkRange("8.8.8.0/24")
+                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                        .build(),
+                IpAnalysisResponseDTO.builder()
+                        .id(2L)
+                        .address("8.8.8.8")
+                        .vpn(false)
+                        .proxy(false)
+                        .tor(false)
+                        .datacenter(true)
+                        .anonymous(false)
+                        .riskLevel(RiskLevel.ATTENTION)
+                        .source(AnalysisSource.MANUAL_SIMULATION)
+                        .externalRiskScore(null)
+                        .externalType("Manual")
+                        .externalProvider("Manual input")
+                        .asn(null)
+                        .country(null)
+                        .city(null)
+                        .hostname(null)
+                        .networkRange(null)
+                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 16, 0))
+                        .build());
+
+        when(ipAnalysisService.findByAddress("8.8.8.8")).thenReturn(analyses);
+
+        mockMvc.perform(get("/ips/{address}/analyses", "8.8.8.8"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].address").value("8.8.8.8"))
+                .andExpect(jsonPath("$[0].riskLevel").value("LOW"))
+                .andExpect(jsonPath("$[0].source").value("EXTERNAL_API"))
+                .andExpect(jsonPath("$[0].externalProvider").value("Google LLC"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].address").value("8.8.8.8"))
+                .andExpect(jsonPath("$[1].datacenter").value(true))
+                .andExpect(jsonPath("$[1].riskLevel").value("ATTENTION"))
+                .andExpect(jsonPath("$[1].source").value("MANUAL_SIMULATION"))
+                .andExpect(jsonPath("$[1].externalProvider").value("Manual input"));
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenIpAddressHasNoAnalyses() throws Exception {
+        when(ipAnalysisService.findByAddress("9.9.9.9")).thenReturn(List.of());
+
+        mockMvc.perform(get("/ips/{address}/analyses", "9.9.9.9"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 }
