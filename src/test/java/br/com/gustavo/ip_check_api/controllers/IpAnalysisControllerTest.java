@@ -1,0 +1,82 @@
+package br.com.gustavo.ip_check_api.controllers;
+
+import br.com.gustavo.ip_check_api.config.IpImportProperties;
+import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
+import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
+import br.com.gustavo.ip_check_api.enums.AnalysisSource;
+import br.com.gustavo.ip_check_api.enums.RiskLevel;
+import br.com.gustavo.ip_check_api.services.IpAnalysisService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(IpAnalysisController.class)
+class IpAnalysisControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private IpAnalysisService ipAnalysisService;
+
+    @MockitoBean
+    private IpIntelligenceProperties ipIntelligenceProperties;
+
+    @MockitoBean
+    private IpImportProperties ipImportProperties;
+
+    @Test
+    void shouldAnalyzeIpAddress() throws Exception {
+        IpAnalysisResponseDTO responseDTO = IpAnalysisResponseDTO.builder()
+                .id(1L)
+                .address("8.8.8.8")
+                .vpn(false)
+                .proxy(false)
+                .tor(false)
+                .datacenter(false)
+                .anonymous(false)
+                .riskLevel(RiskLevel.LOW)
+                .source(AnalysisSource.EXTERNAL_API)
+                .externalRiskScore(0)
+                .externalType("Business")
+                .externalProvider("Google LLC")
+                .asn("AS15169")
+                .country("United States")
+                .city("Mountain View")
+                .hostname("dns.google")
+                .networkRange("8.8.8.0/24")
+                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                .build();
+
+        when(ipAnalysisService.analyze("8.8.8.8")).thenReturn(responseDTO);
+
+        mockMvc.perform(post("/ips/8.8.8.8/analyze"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.address").value("8.8.8.8"))
+                .andExpect(jsonPath("$.vpn").value(false))
+                .andExpect(jsonPath("$.proxy").value(false))
+                .andExpect(jsonPath("$.tor").value(false))
+                .andExpect(jsonPath("$.datacenter").value(false))
+                .andExpect(jsonPath("$.anonymous").value(false))
+                .andExpect(jsonPath("$.riskLevel").value("LOW"))
+                .andExpect(jsonPath("$.source").value("EXTERNAL_API"))
+                .andExpect(jsonPath("$.externalRiskScore").value(0))
+                .andExpect(jsonPath("$.externalType").value("Business"))
+                .andExpect(jsonPath("$.externalProvider").value("Google LLC"))
+                .andExpect(jsonPath("$.asn").value("AS15169"))
+                .andExpect(jsonPath("$.country").value("United States"))
+                .andExpect(jsonPath("$.city").value("Mountain View"))
+                .andExpect(jsonPath("$.hostname").value("dns.google"))
+                .andExpect(jsonPath("$.networkRange").value("8.8.8.0/24"));
+    }
+}
