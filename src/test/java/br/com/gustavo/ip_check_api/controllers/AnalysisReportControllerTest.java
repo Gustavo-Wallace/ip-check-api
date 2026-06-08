@@ -153,4 +153,62 @@ class AnalysisReportControllerTest {
         mockMvc.perform(get("/analyses/risk-level/invalid"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldFilterAnalysesByIndicators() throws Exception {
+        List<IpAnalysisResponseDTO> analyses = List.of(
+                IpAnalysisResponseDTO.builder()
+                        .id(1L)
+                        .address("45.90.28.1")
+                        .vpn(true)
+                        .proxy(false)
+                        .tor(false)
+                        .datacenter(false)
+                        .anonymous(true)
+                        .riskLevel(RiskLevel.MEDIUM)
+                        .source(AnalysisSource.EXTERNAL_API)
+                        .externalRiskScore(50)
+                        .externalType("VPN")
+                        .externalProvider("Example VPN Provider")
+                        .asn("AS12345")
+                        .country("Brazil")
+                        .city("Brasilia")
+                        .hostname("vpn.example.com")
+                        .networkRange("45.90.28.0/24")
+                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                        .build());
+
+        when(ipAnalysisService.filterByIndicators(true, false, false, false, false))
+                .thenReturn(analyses);
+
+        mockMvc.perform(get("/analyses/filter")
+                .param("vpn", "true")
+                .param("proxy", "false")
+                .param("tor", "false")
+                .param("datacenter", "false")
+                .param("anonymous", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].address").value("45.90.28.1"))
+                .andExpect(jsonPath("$[0].vpn").value(true))
+                .andExpect(jsonPath("$[0].proxy").value(false))
+                .andExpect(jsonPath("$[0].tor").value(false))
+                .andExpect(jsonPath("$[0].datacenter").value(false))
+                .andExpect(jsonPath("$[0].anonymous").value(true))
+                .andExpect(jsonPath("$[0].riskLevel").value("MEDIUM"))
+                .andExpect(jsonPath("$[0].source").value("EXTERNAL_API"))
+                .andExpect(jsonPath("$[0].externalProvider").value("Example VPN Provider"));
+    }
+
+    @Test
+    void shouldFilterAnalysesWithoutIndicators() throws Exception {
+        when(ipAnalysisService.filterByIndicators(null, null, null, null, null))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/analyses/filter"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
 }
