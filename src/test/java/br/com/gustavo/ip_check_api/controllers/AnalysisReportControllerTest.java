@@ -211,4 +211,107 @@ class AnalysisReportControllerTest {
                 .andExpect(jsonPath("$").isEmpty());
     }
 
+    @Test
+    void shouldFindAnalysesByCountry() throws Exception {
+        List<IpAnalysisResponseDTO> analyses = List.of(
+                IpAnalysisResponseDTO.builder()
+                        .id(1L)
+                        .address("8.8.8.8")
+                        .vpn(false)
+                        .proxy(false)
+                        .tor(false)
+                        .datacenter(false)
+                        .anonymous(false)
+                        .riskLevel(RiskLevel.LOW)
+                        .source(AnalysisSource.EXTERNAL_API)
+                        .externalRiskScore(0)
+                        .externalType("Business")
+                        .externalProvider("Google LLC")
+                        .asn("AS15169")
+                        .country("United States")
+                        .city("Mountain View")
+                        .hostname("dns.google")
+                        .networkRange("8.8.8.0/24")
+                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                        .build());
+
+        when(ipAnalysisService.findByCountry("United States")).thenReturn(analyses);
+
+        mockMvc.perform(get("/analyses/country/United States"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].address").value("8.8.8.8"))
+                .andExpect(jsonPath("$[0].country").value("United States"))
+                .andExpect(jsonPath("$[0].city").value("Mountain View"))
+                .andExpect(jsonPath("$[0].externalProvider").value("Google LLC"));
+    }
+
+    @Test
+    void shouldFindAnalysesByExternalProvider() throws Exception {
+        List<IpAnalysisResponseDTO> analyses = List.of(
+                IpAnalysisResponseDTO.builder()
+                        .id(1L)
+                        .address("1.1.1.1")
+                        .vpn(false)
+                        .proxy(false)
+                        .tor(false)
+                        .datacenter(false)
+                        .anonymous(false)
+                        .riskLevel(RiskLevel.LOW)
+                        .source(AnalysisSource.EXTERNAL_API)
+                        .externalRiskScore(0)
+                        .externalType("Business")
+                        .externalProvider("Cloudflare, Inc.")
+                        .asn("AS13335")
+                        .country("Australia")
+                        .city("Sydney")
+                        .hostname("one.one.one.one")
+                        .networkRange("1.1.1.0/24")
+                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 5))
+                        .build());
+
+        when(ipAnalysisService.findByExternalProvider("Cloudflare")).thenReturn(analyses);
+
+        mockMvc.perform(get("/analyses/provider/Cloudflare"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].address").value("1.1.1.1"))
+                .andExpect(jsonPath("$[0].externalProvider").value("Cloudflare, Inc."))
+                .andExpect(jsonPath("$[0].asn").value("AS13335"));
+    }
+
+    @Test
+    void shouldFindAnalysesByAsn() throws Exception {
+        List<IpAnalysisResponseDTO> analyses = List.of(
+                IpAnalysisResponseDTO.builder()
+                        .id(1L)
+                        .address("8.8.8.8")
+                        .vpn(false)
+                        .proxy(false)
+                        .tor(false)
+                        .datacenter(false)
+                        .anonymous(false)
+                        .riskLevel(RiskLevel.LOW)
+                        .source(AnalysisSource.EXTERNAL_API)
+                        .externalRiskScore(0)
+                        .externalType("Business")
+                        .externalProvider("Google LLC")
+                        .asn("AS15169")
+                        .country("United States")
+                        .city("Mountain View")
+                        .hostname("dns.google")
+                        .networkRange("8.8.8.0/24")
+                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                        .build());
+
+        when(ipAnalysisService.findByAsn("AS15169")).thenReturn(analyses);
+
+        mockMvc.perform(get("/analyses/asn/AS15169"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].address").value("8.8.8.8"))
+                .andExpect(jsonPath("$[0].asn").value("AS15169"))
+                .andExpect(jsonPath("$[0].externalProvider").value("Google LLC"));
+    }
+
 }
