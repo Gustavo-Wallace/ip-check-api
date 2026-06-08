@@ -1,5 +1,7 @@
 package br.com.gustavo.ip_check_api.controllers;
 
+import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.when;
@@ -14,6 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import br.com.gustavo.ip_check_api.config.IpImportProperties;
 import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
 import br.com.gustavo.ip_check_api.dtos.AnalysisSummaryReportDTO;
+import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
+import br.com.gustavo.ip_check_api.enums.AnalysisSource;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.services.IpAnalysisService;
 
@@ -95,5 +99,58 @@ class AnalysisReportControllerTest {
                 .andExpect(jsonPath("$.proxy").value(2))
                 .andExpect(jsonPath("$.tor").value(1))
                 .andExpect(jsonPath("$.datacenter").value(4));
+    }
+
+    @Test
+    void shouldFindAnalysesByRiskLevel() throws Exception {
+        List<IpAnalysisResponseDTO> analyses = List.of(
+                IpAnalysisResponseDTO.builder()
+                        .id(1L)
+                        .address("8.8.8.8")
+                        .vpn(false)
+                        .proxy(false)
+                        .tor(false)
+                        .datacenter(false)
+                        .anonymous(false)
+                        .riskLevel(RiskLevel.LOW)
+                        .source(AnalysisSource.EXTERNAL_API)
+                        .externalRiskScore(0)
+                        .externalType("Business")
+                        .externalProvider("Google LLC")
+                        .asn("AS15169")
+                        .country("United States")
+                        .city("Mountain View")
+                        .hostname("dns.google")
+                        .networkRange("8.8.8.0/24")
+                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                        .build());
+
+        when(ipAnalysisService.findByRiskLevel(RiskLevel.LOW)).thenReturn(analyses);
+
+        mockMvc.perform(get("/analyses/risk-level/low"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].address").value("8.8.8.8"))
+                .andExpect(jsonPath("$[0].vpn").value(false))
+                .andExpect(jsonPath("$[0].proxy").value(false))
+                .andExpect(jsonPath("$[0].tor").value(false))
+                .andExpect(jsonPath("$[0].datacenter").value(false))
+                .andExpect(jsonPath("$[0].anonymous").value(false))
+                .andExpect(jsonPath("$[0].riskLevel").value("LOW"))
+                .andExpect(jsonPath("$[0].source").value("EXTERNAL_API"))
+                .andExpect(jsonPath("$[0].externalRiskScore").value(0))
+                .andExpect(jsonPath("$[0].externalType").value("Business"))
+                .andExpect(jsonPath("$[0].externalProvider").value("Google LLC"))
+                .andExpect(jsonPath("$[0].asn").value("AS15169"))
+                .andExpect(jsonPath("$[0].country").value("United States"))
+                .andExpect(jsonPath("$[0].city").value("Mountain View"))
+                .andExpect(jsonPath("$[0].hostname").value("dns.google"))
+                .andExpect(jsonPath("$[0].networkRange").value("8.8.8.0/24"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenRiskLevelIsInvalid() throws Exception {
+        mockMvc.perform(get("/analyses/risk-level/invalid"))
+                .andExpect(status().isBadRequest());
     }
 }
