@@ -156,6 +156,8 @@ Exemplo de resposta:
 }
 ```
 
+> **Observação:** O ProxyCheck pode ser usado sem API key, mas requisições não autenticadas podem ter limites menores e podem falhar durante análises em lote com muitos IPs. Para um uso mais estável, configure `IP_INTELLIGENCE_API_KEY` usando uma variável de ambiente ou um arquivo local `run.bat`. Não faça commit de chaves reais no repositório.
+
 ## Principais endpoints
 
 ### Endereços IP
