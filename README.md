@@ -1,5 +1,7 @@
 # IP Check API
 
+[Português](README.pt-BR.md)
+
 IP Check API is a REST API built with Java and Spring Boot for registering, importing, and analyzing IP addresses.
 
 The project was developed as both a study/portfolio project and a practical support tool for access risk analysis in security-related systems used in Brazil. During my internship at MJSP, working in the context of SINESP, the API proved useful for analyzing large IP lists through CSV imports, processing more than 500 IP addresses and helping identify high-risk entries that could be reviewed and blocked when necessary.
