@@ -20,9 +20,10 @@ public class IpIntelligenceConfigController {
     public IpIntelligenceConfigResponseDTO getConfig() {
         return IpIntelligenceConfigResponseDTO.builder()
                 .provider(properties.getProvider())
-                .baseUrlConfigured(
-                        String.valueOf(properties.getBaseUrl() != null && !properties.getBaseUrl().isBlank()))
-                .apiKeyConfigured(String.valueOf(properties.getApiKey() != null && !properties.getApiKey().isBlank()))
+                .baseUrlConfigured(properties.getBaseUrl() != null
+                        && !properties.getBaseUrl().isBlank())
+                .apiKeyConfigured(properties.getApiKey() != null
+                        && !properties.getApiKey().isBlank())
                 .cacheDurationMinutes(properties.getCacheDurationMinutes())
                 .build();
     }

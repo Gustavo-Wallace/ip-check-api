@@ -1,345 +1,298 @@
 # IP Check API
 
-REST API for detecting VPN, proxy, Tor, datacenter and anonymized IP addresses.
+IP Check API is a REST API built with Java and Spring Boot for registering, importing, and analyzing IP addresses.
 
-## About
+The project was developed as both a study/portfolio project and a practical support tool for access risk analysis in security-related systems used in Brazil. During my internship at MJSP, working in the context of SINESP, the API proved useful for analyzing large IP lists through CSV imports, processing more than 500 IP addresses and helping identify high-risk entries that could be reviewed and blocked when necessary.
 
-IP Check API is a Spring Boot project created to analyze IP addresses and identify possible anonymity indicators, such as VPN, proxy, Tor usage and datacenter/hosting origin.
+The API allows users to store IP addresses, import IP lists from JSON or CSV, run automatic and manual IP analyses, and check indicators such as VPN, proxy, Tor, datacenter/hosting, anonymity, ASN, country, city, hostname, provider, network range, and risk level.
 
-The project currently uses internal rules and a mock intelligence client, but it is structured to support future integration with external IP intelligence APIs.
+This project focuses on backend development, API design, external API integration, testing, documentation, and clean project organization.
+
+## Technologies
+
+* Java
+* Spring Boot
+* Spring Web
+* Spring Data JPA
+* H2 Database
+* PostgreSQL
+* Maven
+* Lombok
+* Swagger / OpenAPI
+* WebClient
+* JUnit
+* Mockito
+* MockMvc
 
 ## Features
 
-- Register IP addresses
-- List registered IP addresses
-- Validate IPv4 and IPv6 addresses
-- Analyze IP addresses
-- Simulate manual IP analysis
-- Detect anonymity indicators:
-  - VPN
-  - Proxy
-  - Tor
-  - Datacenter
-  - Anonymous
-- Classify IP risk level
-- Store analysis history
-- Generate reports by risk level
-- Generate reports by anonymity indicators
-- Global error handling
+* Register IP addresses
+* List registered IP addresses
+* List active IP addresses
+* Activate and deactivate IP addresses
+* Import IP addresses from JSON
+* Import IP addresses from CSV text
+* Import IP addresses from CSV files
+* Automatically analyze IP addresses
+* Manually analyze IP addresses
+* Batch analyze all active IP addresses
+* Cache recent IP analyses
+* Check analysis history by IP address
+* Generate risk level reports
+* Generate anonymity indicator reports
+* Filter analyses by risk level
+* Filter analyses by country, provider, ASN, and indicators
+* Swagger documentation
+* Unit and controller tests
 
-## Tech Stack
+## Running the Project
 
-- Java 21
-- Spring Boot
-- Spring Web
-- Spring Data JPA
-- Bean Validation
-- Lombok
-- H2 Database
-- Maven
+### Requirements
 
-## Project Structure
+* Java 21 or higher
+* Maven Wrapper included in the project
+
+To run the project on Windows:
+
+```bat
+mvnw.cmd spring-boot:run
+```
+
+Or, if you are using the local `run.bat` file:
+
+```bat
+run.bat
+```
+
+The API will be available at:
 
 ```text
-src/main/java/br/com/gustavo/ip_check_api/
-├── clients/
-├── config/
-├── controllers/
-├── dtos/
-├── enums/
-├── exceptions/
-├── models/
-├── repositories/
-├── services/
-└── utils/
+http://localhost:8080
+```
+
+## Swagger Documentation
+
+The interactive API documentation is available at:
+
+```text
+http://localhost:8080/docs
+```
+
+## Health Check
+
+```http
+GET /health
+```
+
+Expected response:
+
+```text
+IP Check API is running
+```
+
+## Development Database
+
+By default, the project uses the `dev` profile with an in-memory H2 database.
+
+H2 Console:
+
+```text
+http://localhost:8080/h2-console
+```
+
+JDBC URL:
+
+```text
+jdbc:h2:mem:ipcheckdb
 ```
 
 ## Environment Variables
 
-The project supports external API keys through environment variables.
+The project includes a `.env.example` file with the expected environment variables:
 
-| Variable | Description |
-|---|---|
-| IP_INTELLIGENCE_API_KEY | API key used by the configured IP intelligence provider |
+```env
+SPRING_PROFILES_ACTIVE=dev
+IP_INTELLIGENCE_API_KEY=your_api_key_here
 
-Example on Windows CMD:
-
-```bat
-set IP_INTELLIGENCE_API_KEY=your-api-key-here
-mvnw.cmd spring-boot:run
+POSTGRES_DB_URL=jdbc:postgresql://localhost:5432/ip_check_db
+POSTGRES_DB_USERNAME=postgres
+POSTGRES_DB_PASSWORD=postgres
 ```
-The API key is not exposed by the configuration endpoint. The endpoint only indicates whether it is configured.
 
-## Risk Levels
+## IP Intelligence Integration
 
-| Level     | Description                              |
-| --------- | ---------------------------------------- |
-| LOW       | No relevant anonymity indicator detected |
-| ATTENTION | Datacenter or hosting provider detected  |
-| MEDIUM    | VPN or proxy detected                    |
-| HIGH      | Strong anonymity combination detected    |
-| CRITICAL  | Tor detected                             |
+The API supports configurable IP intelligence providers.
 
-## Risk Level Calculation
-
-The risk level is calculated using anonymity indicators and the external risk score.
-
-| Condition | Risk Level |
-|---|---|
-| Tor detected or external risk score >= 90 | CRITICAL |
-| VPN + Proxy, Anonymous + Proxy, or external risk score >= 70 | HIGH |
-| VPN, Proxy, or external risk score >= 40 | MEDIUM |
-| Datacenter detected or external risk score >= 20 | ATTENTION |
-| No relevant indicator and external risk score below 20 | LOW |
-
-## Analysis Sources
-
-| Source            | Description                         |
-| ----------------- | ----------------------------------- |
-| INTERNAL_RULES    | Analysis based on internal rules    |
-| MANUAL_SIMULATION | Manual simulation for testing       |
-| EXTERNAL_API      | Mocked external intelligence client |
-
-## IP Intelligence Cache
-
-The project can reuse recent analyses to avoid unnecessary external API calls.
+Main configuration:
 
 ```properties
+ip-intelligence.provider=mock
+ip-intelligence.base-url=https://proxycheck.io/v2
+ip-intelligence.api-key=${IP_INTELLIGENCE_API_KEY:}
 ip-intelligence.cache-duration-minutes=60
 ```
 
-If the same IP was analyzed within the configured time window, the latest analysis is reused.
+Currently supported providers in the project:
 
-To disable cache:
+* `mock`
+* `proxycheck`
 
-```properties
-ip-intelligence.cache-duration-minutes=0
-```
+To check the current integration configuration:
 
-## Endpoints
-
-### Health Check
 ```http
-GET /health
-```
-Response:
-```
-IP Check API is running
+GET /ip-intelligence/config
 ```
 
-### Register IP Address
-```http
-Post /ips
+Example response:
+
+```json
+{
+  "provider": "proxycheck",
+  "baseUrlConfigured": true,
+  "apiKeyConfigured": true,
+  "cacheDurationMinutes": 60
+}
 ```
+
+## Main Endpoints
+
+### IP Addresses
+
+```http
+POST /ips
+GET /ips
+GET /ips/active
+GET /ips/page
+GET /ips/{id}
+PATCH /ips/{id}/activate
+PATCH /ips/{id}/deactivate
+```
+
+### IP Import
+
+```http
+POST /ips/import
+POST /ips/import/csv-text
+POST /ips/import/csv-file
+```
+
+### IP Analysis
+
+```http
+POST /ips/{address}/analyze
+POST /ips/{address}/analyze/manual
+GET /ips/{address}/analyses
+POST /ips/active/analyze
+```
+
+### Analysis Reports
+
+```http
+GET /analyses
+GET /analyses/page
+GET /analyses/risk-level/{riskLevel}
+GET /analyses/filter
+GET /analyses/country/{country}
+GET /analyses/provider/{externalProvider}
+GET /analyses/asn/{asn}
+GET /analyses/report/risk-level
+GET /analyses/report/anonymity
+GET /analyses/report/summary
+```
+
+## Request and Response Examples
+
+### Register an IP Address
+
 Request:
-```JSON
+
+```http
+POST /ips
+Content-Type: application/json
+```
+
+Body:
+
+```json
 {
   "address": "8.8.8.8",
   "description": "Google DNS"
 }
 ```
+
 Response:
-```JSON
+
+```json
 {
   "id": 1,
   "address": "8.8.8.8",
   "description": "Google DNS",
   "active": true,
-  "createdAt": "2026-05-20T13:20:17.8335225"
+  "createdAt": "2026-06-02T15:00:00"
 }
 ```
 
-### Import Multiple IP Addresses
+### Automatically Analyze an IP Address
 
-```http
-POST /ips/import
-```
 Request:
-```JSON
-{
-  "addresses": [
-    "8.8.8.8",
-    "1.1.1.1"
-  ],
-  "description": "Imported from JSON",
-  "analyzeAfterImport": true
-}
+
+```http
+POST /ips/8.8.8.8/analyze
 ```
-When `analyzeAfterImport` is `true`, successfully imported IP addresses are analyzed immediately.
+
 Response:
-```JSON
+
+```json
 {
-  "totalReceived": 4,
-  "importedCount": 2,
-  "duplicatedCount": 1,
-  "errorCount": 1,
-  "imported": [],
-  "duplicated": [],
-  "errors": [],
-  "importErrors": [],
-  "analysisErrors": [],
-  "analyses": [],
-  "analysisCount": 2,
-  "lowRiskCount": 2,
-  "attentionRiskCount": 0,
-  "mediumRiskCount": 0,
-  "highRiskCount": 0,
-  "criticalRiskCount": 0
-}
-```
-Duplicated IP addresses are ignored both when they already exist in the database and when they are repeated in the same import request.`importErrors` contains validation or persistence errors during import.
-`analysisErrors` contains errors that happened after an IP was imported successfully but failed during analysis.
-
-### Import IP Addresses From CSV Text
-
-```http
-POST /ips/import/csv-text
-```
-Request:
-```JSON
-{
-  "csvContent": "address,description\n8.8.8.8,Google DNS\n1.1.1.1,Cloudflare DNS",
-  "analyzeAfterImport": true
-}
-```
-The first column must contain the IP address.
-
-### Import IP Addresses From CSV File
-
-```http
-POST /ips/import/csv-file
-```
-Example
-```bash
-curl -X POST http://localhost:8080/ips/import/csv-file \
--F "file=@ips.csv" \
--F "analyzeAfterImport=true"
-```
-CSV example:
-```csv
-address,description
-8.8.8.8,Google DNS
-1.1.1.1,Cloudflare DNS
-999.999.999.999,Invalid IP
-```
-The first column must contain the IP address. The second column, when present, is used as the IP description.
-CSV file upload validation:
-
-- File is required
-- File must not be empty
-- File extension must be `.csv`
-- Default maximum size is 1 MB
-
-Configuration:
-
-```properties
-ip-import.max-csv-file-size-bytes=1048576
-```
-
-### Deactivate IP Address
-```http
-PATCH /ips/{id}/deactivate
-```
-Example:
-```bash
-curl -X PATCH http://localhost:8080/ips/1/deactivate
-```
-
-### Activate IP Address
-```http
-PATCH /ips/{id}/activate
-```
-Example:
-```bash
-curl -X PATCH http://localhost:8080/ips/1/activate
-```
-
-### List IP Addresses
-```http
-GET /ips
-```
-
-### List Active IP Addresses
-```http
-GET /ips/active
-```
-Example:
-```bash
-curl http://localhost:8080/ips/active
-```
-
-### Find IP Address by ID
-```http
-Get /ips/{id}
-```
-Example:
-```bash
-curl http://localhost:8080/ips/1
-```
-
-### List IP Addresses With Pagination
-```http
-GET /ips/page?page=0&size=10
-```
-Example:
-```bash
-curl "http://localhost:8080/ips/page?page=0&size=5"
-```
-Example with sorting:
-```bash
-curl "http://localhost:8080/ips/page?page=0&size=5&sort=createdAt,desc"
-```
-
-### Analyze IP Address
-```http
-POST /ips/{address}/analyze`
-```
-Example:
-```bash
-curl -X POST http://localhost:8080/ips/8.8.8.8/analyze
-```
-Response:
-```JSON
-{
-  "address": "8.8.8.8",
-  "analyzedAt": "2026-05-27T17:04:00.1765442",
-  "anonymous": false,
-  "asn": "AS15169",
-  "city": "Mountain View",
-  "country": "United States",
-  "datacenter": false,
-  "externalProvider": "Google LLC",
-  "externalRiskScore": 0,
-  "externalType": "Business",
-  "hostname": "dns.google",
   "id": 1,
-  "networkRange": "8.8.8.0/24",
+  "address": "8.8.8.8",
+  "vpn": false,
   "proxy": false,
+  "tor": false,
+  "datacenter": false,
+  "anonymous": false,
   "riskLevel": "LOW",
   "source": "EXTERNAL_API",
-  "tor": false,
-  "vpn": false
+  "externalRiskScore": 0,
+  "externalType": "Business",
+  "externalProvider": "Google LLC",
+  "asn": "AS15169",
+  "country": "United States",
+  "city": "Mountain View",
+  "hostname": "dns.google",
+  "networkRange": "8.8.8.0/24",
+  "analyzedAt": "2026-06-02T15:00:00"
 }
 ```
 
-### Manual Analysis Simulation
-```http
-POST /ips/{address}/analyze/manual
-```
+### Manually Analyze an IP Address
+
 Request:
-```JSON
+
+```http
+POST /ips/45.90.28.1/analyze/manual
+Content-Type: application/json
+```
+
+Body:
+
+```json
 {
   "vpn": true,
   "proxy": false,
   "tor": false,
-  "datacenter": false
+  "datacenter": false,
+  "anonymous": true,
+  "riskLevel": "MEDIUM"
 }
 ```
+
 Response:
-```JSON
+
+```json
 {
-  "id": 2,
-  "address": "8.8.8.8",
+  "id": 1,
+  "address": "45.90.28.1",
   "vpn": true,
   "proxy": false,
   "tor": false,
@@ -347,292 +300,237 @@ Response:
   "anonymous": true,
   "riskLevel": "MEDIUM",
   "source": "MANUAL_SIMULATION",
-  "analyzedAt": "2026-05-20T13:45:00"
+  "externalRiskScore": null,
+  "externalType": "Manual",
+  "externalProvider": "Manual input",
+  "asn": null,
+  "country": null,
+  "city": null,
+  "hostname": null,
+  "networkRange": null,
+  "analyzedAt": "2026-06-02T15:00:00"
 }
 ```
 
-### Analyze All Active IP Addresses
+### Import IP Addresses from JSON
+
+Request:
+
+```http
+POST /ips/import
+Content-Type: application/json
+```
+
+Body:
+
+```json
+{
+  "addresses": [
+    "8.8.8.8",
+    "1.1.1.1"
+  ],
+  "description": "Imported JSON",
+  "analyzeAfterImport": false
+}
+```
+
+### Import IP Addresses from CSV Text
+
+Request:
+
+```http
+POST /ips/import/csv-text
+Content-Type: application/json
+```
+
+Body:
+
+```json
+{
+  "csvContent": "address,description\n8.8.8.8,Google DNS\n1.1.1.1,Cloudflare DNS",
+  "analyzeAfterImport": false
+}
+```
+
+### Batch Analyze Active IP Addresses
+
+Request:
+
 ```http
 POST /ips/active/analyze
 ```
-Example:
-```bash
-curl -X POST http://localhost:8080/ips/active/analyze
-```
-Response:
-```JSON
+
+Example response:
+
+```json
 {
   "totalProcessed": 2,
   "successCount": 2,
   "errorCount": 0,
-  "analyses": [],
+  "analyses": [
+    {
+      "id": 1,
+      "address": "8.8.8.8",
+      "vpn": false,
+      "proxy": false,
+      "tor": false,
+      "datacenter": false,
+      "anonymous": false,
+      "riskLevel": "LOW",
+      "source": "EXTERNAL_API",
+      "externalRiskScore": 0,
+      "externalType": "Business",
+      "externalProvider": "Google LLC",
+      "asn": "AS15169",
+      "country": "United States",
+      "city": "Mountain View",
+      "hostname": "dns.google",
+      "networkRange": "8.8.8.0/24",
+      "analyzedAt": "2026-06-02T15:00:00"
+    }
+  ],
   "errors": []
 }
 ```
-This endpoint analyzes all active registered IP addresses, stores the analysis history and returns a batch processing summary.
 
-### List Analyses by IP
-```http
-GET /ips/{address}/analyses
+## Risk Levels
+
+The API currently works with the following risk levels:
+
+```text
+LOW
+ATTENTION
+MEDIUM
+HIGH
+CRITICAL
 ```
 
-### List All Analyses
-```http
-Get /analyses
+## Analysis Sources
+
+The API currently works with the following analysis sources:
+
+```text
+INTERNAL_RULES
+MANUAL_SIMULATION
+EXTERNAL_API
 ```
 
-### List Analyses by risk Level
-```http
-GET /analyses/risk-level/{riskLevel}
-```
-Example:
-```bash
-curl http://localhost:8080/analyses/risk-level/CRITICAL
-```
-Available risk levels:
+## Risk Levels
 
- - LOW
- - ATTENTION
- - MEDIUM
- - HIGH
- - CRITICAL
- Accepted values are case-insensitive.
+| Level       | Description                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------- |
+| `LOW`       | No relevant anonymity indicator detected                                                     |
+| `ATTENTION` | Datacenter or hosting provider detected                                                      |
+| `MEDIUM`    | VPN, proxy, or moderate external risk score detected                                         |
+| `HIGH`      | Strong risk indicators detected, such as VPN combined with proxy or high external risk score |
+| `CRITICAL`  | Tor detected or critical external risk score detected                                        |
 
-### Analysis Summary Report
-```http
-GET /analyses/report/summary
-```
-Example:
-```bash
-curl http://localhost:8080/analyses/report/summary
-```
-Response:
-```JSON
-{
-  "totalAnalyses": 2,
-  "anonymousCount": 1,
-  "vpnCount": 0,
-  "proxyCount": 0,
-  "torCount": 1,
-  "datacenterCount": 1,
-  "highestRiskLevel": "CRITICAL"
-}
-```
+## Risk Level Calculation
 
-### Risk Level Report
-```http
-GET /analyses/report/risk-level
-```
-Response:
-```JSON
-{
-  "LOW": 1,
-  "ATTENTION": 1,
-  "MEDIUM": 1,
-  "HIGH": 0,
-  "CRITICAL": 1
-}
-```
+The risk level is calculated using anonymity indicators and the external risk score.
 
-### Anonymity Indicators Report
-```http
-GET /analyses/report/anonymity
-```
-Response:
-```JSON
-{
-  "vpn": 1,
-  "proxy": 1,
-  "tor": 1,
-  "datacenter": 1,
-  "anonymous": 3
-}
+| Condition                                              | Risk Level  |
+| ------------------------------------------------------ | ----------- |
+| Tor detected or external risk score >= 90              | `CRITICAL`  |
+| VPN + Proxy detected or external risk score >= 70      | `HIGH`      |
+| VPN, Proxy, or external risk score >= 40               | `MEDIUM`    |
+| Datacenter detected or external risk score >= 20       | `ATTENTION` |
+| No relevant indicator and external risk score below 20 | `LOW`       |
+
+## Project Structure
+
+```text
+src
+├── main
+│   ├── java
+│   │   └── br.com.gustavo.ip_check_api
+│   │       ├── clients
+│   │       ├── config
+│   │       ├── controllers
+│   │       ├── dtos
+│   │       ├── enums
+│   │       ├── exceptions
+│   │       ├── models
+│   │       ├── repositories
+│   │       ├── services
+│   │       └── utils
+│   └── resources
+│       ├── application.properties
+│       ├── application-dev.properties
+│       └── application-postgres.properties
+└── test
+    └── java
+        └── br.com.gustavo.ip_check_api
+            ├── clients
+            ├── controllers
+            ├── services
+            └── utils
 ```
 
-### Filter Analyses by Anonymity Indicators
-```http
-GET /analyses/filter?vpn=true&proxy=false&tor=false&datacenter=true&anonymous=false
-```
-Example:
-```bash
-curl "http://localhost:8080/analyses/filter?tor=true"
-```
-Available optional query parameters
- - vpn
- - proxy
- - tor
- - datacenter
- - anonymous
+### Main Packages
 
-### List Analyses by Country
-```http
-GET /analyses/country/{country}
-```
+| Package        | Responsibility                                                             |
+| -------------- | -------------------------------------------------------------------------- |
+| `clients`      | External IP intelligence clients, such as mock and ProxyCheck integrations |
+| `config`       | Application configuration, properties, WebClient and OpenAPI setup         |
+| `controllers`  | REST controllers and API endpoints                                         |
+| `dtos`         | Request and response objects used by the API                               |
+| `enums`        | Risk levels, analysis sources and provider-related enums                   |
+| `exceptions`   | Custom exceptions and global exception handling                            |
+| `models`       | JPA entities                                                               |
+| `repositories` | Spring Data JPA repositories                                               |
+| `services`     | Business rules, IP registration, import and analysis logic                 |
+| `utils`        | Utility classes such as IP validation, CSV parsing and risk calculation    |
 
-### List Analyses by External Provider
-```http
-GET /analyses/provider/{externalProvider}
-```
-Example:
-```bash
-curl http://localhost:8080/analyses/provider/Google
-```
+## Tests
 
-### List Analyses by ASN
-```http
-GET /analyses/asn/{asn}
-```
-
-```bash
-curl http://localhost:8080/analyses/asn/AS15169
-```
-
-### List Analyses With Pagination
-```http
-GET /analyses/page?page=0&size=10
-```
-Example:
-```bash
-curl "http://localhost:8080/analyses/page?page=0&size=5"
-```
-Example with sorting:
-```bash
-curl "http://localhost:8080/analyses/page?page=0&size=5&sort=analyzedAt,desc"
-```
-
-### IP Intelligence Configuration
-```http
-GET /ip-intelligence/config
-```
-Example:
-```bash
-curl http://localhost:8080/ip-intelligence/config
-```
-Response:
-```JSON
-{
-  "provider": "mock",
-  "baseUrlConfigured": "false",
-  "apiKeyConfigured": "false"
-}
-```
-
-## Running the Project
-
-On machines with Java properly configured:
-```bash
-./mvnw spring-boot:run
-```
-On Windows:
-```bash
-mvnw.cmd spring-boot:run
-```
-If the machine has multiple Java versions, configure `JAVA_HOME` before running.
-Example:
-```bat
-set "JAVA_HOME=C:\Users\gustavo.santos3\AppData\Local\Programs\Eclipse Adoptium\jdk-25.0.2.10-hotspot"
-set "PATH=%JAVA_HOME%\bin;%PATH%"
-mvnw.cmd spring-boot:run
-```
-
-## Temporary Database
-
-The project currently use H2 in-memory database for development
-H2 console:
-```
-http://localhost:8080/h2-console
-```
-Default JDBC URL
-```
-jdbc:h2:mem:ipcheckdb
-```
-
-## IP Intelligence Provider
-
-The project currently uses a mock IP intelligence provider.
-
-Available provider:
-
-```properties
-ip-intelligence.provider=mock
-```
-
-Future supported providers may include:
-
- - ProxyCheck
- - IPinfo
- - IPQualityScore
-
-## ProxyCheck Provider
-
-The project includes an initial ProxyCheck client implementation.
-
-```properties
-ip-intelligence.provider=proxycheck
-ip-intelligence.base-url=https://proxycheck.io/v2
-ip-intelligence.api-key=${IP_INTELLIGENCE_API_KEY:}
-```
-
-For local development, keep:
-```properties
-ip-intelligence.provider=mock
-```
-ProxyCheck free usage limits may vary by account and API version. Check the official documentation before production usage.
-
-## Spring Profiles
-
-The project uses Spring profiles to separate development and database configurations.
-
-### Dev Profile
-
-Default profile:
-
-```properties
-spring.profiles.active=dev
-```
-Uses H2 in-memory database.
-
-### PostgreSQL Profile
-
-To run with PostgreSQL:
+To run all tests:
 
 ```bat
-set SPRING_PROFILES_ACTIVE=postgres
-set POSTGRES_DB_URL=jdbc:postgresql://localhost:5432/ip_check_db
-set POSTGRES_DB_USERNAME=postgres
-set POSTGRES_DB_PASSWORD=your_password
-mvnw.cmd spring-boot:run
+mvnw.cmd test
 ```
 
-## Environment Example
-
-The project includes a `.env.example` file with the required environment variables.
-
-Copy it and configure your local values:
-
-```bash
-cp .env.example .env
-```
-
-On Windows CMD, environment variables can be set manually:
+To clean and run all tests:
 
 ```bat
-set SPRING_PROFILES_ACTIVE=postgres
-set POSTGRES_DB_URL=jdbc:postgresql://localhost:5432/ip_check_db
-set POSTGRES_DB_USERNAME=postgres
-set POSTGRES_DB_PASSWORD=your_password
-set IP_INTELLIGENCE_API_KEY=your_api_key
-mvnw.cmd spring-boot:run
+mvnw.cmd clean test
 ```
-Do not commit real API keys or database passwords.
+
+The project includes tests for:
+
+* Utility classes
+* Risk level parsing
+* Risk level calculation
+* CSV parsing
+* Mock IP intelligence client
+* IP import service
+* IP analysis service
+* Controllers using MockMvc
+
+## Project Status
+
+This project is currently under development.
+
+Current status:
+
+* Functional REST API
+* Configurable external IP intelligence integration
+* H2 database for development
+* PostgreSQL profile support
+* Swagger documentation
+* Unit tests
+* Controller tests
+* Import and analysis flows implemented
 
 ## Future Improvements
 
- - Integrate with a real external IP intelligence API
- - Add PostgreSQL profile
- - Add Swagger/OpenAPI documentation
- - Add pagination to list endpoints
- - Add unit and integration tests
- - Add Docker support
- - Add authentication for protected endpoints
- - Add CSV/Excel import for IP lists
+Possible future improvements:
+
+* Add authentication and authorization
+* Add Docker support
+* Add database migrations with Flyway or Liquibase
+* Improve PostgreSQL production configuration
+* Add pagination to more endpoints
+* Add more external IP intelligence providers
+* Add frontend dashboard
+* Add deployment configuration

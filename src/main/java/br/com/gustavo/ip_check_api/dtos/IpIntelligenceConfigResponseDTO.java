@@ -8,7 +8,7 @@ import lombok.Getter;
 public class IpIntelligenceConfigResponseDTO {
 
     private String provider;
-    private String baseUrlConfigured;
-    private String apiKeyConfigured;
+    private Boolean baseUrlConfigured;
+    private Boolean apiKeyConfigured;
     private Long cacheDurationMinutes;
 }
