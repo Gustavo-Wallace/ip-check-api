@@ -1,211 +1,324 @@
 package br.com.gustavo.ip_check_api.controllers;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import br.com.gustavo.ip_check_api.config.IpImportProperties;
 import br.com.gustavo.ip_check_api.config.IpIntelligenceProperties;
+import br.com.gustavo.ip_check_api.dtos.BatchAnalysisErrorDTO;
+import br.com.gustavo.ip_check_api.dtos.BatchAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisManualRequestDTO;
 import br.com.gustavo.ip_check_api.dtos.IpAnalysisResponseDTO;
 import br.com.gustavo.ip_check_api.enums.AnalysisSource;
 import br.com.gustavo.ip_check_api.enums.RiskLevel;
 import br.com.gustavo.ip_check_api.services.IpAnalysisService;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.http.MediaType;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(IpAnalysisController.class)
 class IpAnalysisControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockitoBean
-    private IpAnalysisService ipAnalysisService;
+        @MockitoBean
+        private IpAnalysisService ipAnalysisService;
 
-    @MockitoBean
-    private IpIntelligenceProperties ipIntelligenceProperties;
+        @MockitoBean
+        private IpIntelligenceProperties ipIntelligenceProperties;
 
-    @MockitoBean
-    private IpImportProperties ipImportProperties;
+        @MockitoBean
+        private IpImportProperties ipImportProperties;
 
-    @Test
-    void shouldAnalyzeIpAddress() throws Exception {
-        IpAnalysisResponseDTO responseDTO = IpAnalysisResponseDTO.builder()
-                .id(1L)
-                .address("8.8.8.8")
-                .vpn(false)
-                .proxy(false)
-                .tor(false)
-                .datacenter(false)
-                .anonymous(false)
-                .riskLevel(RiskLevel.LOW)
-                .source(AnalysisSource.EXTERNAL_API)
-                .externalRiskScore(0)
-                .externalType("Business")
-                .externalProvider("Google LLC")
-                .asn("AS15169")
-                .country("United States")
-                .city("Mountain View")
-                .hostname("dns.google")
-                .networkRange("8.8.8.0/24")
-                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
-                .build();
+        @Test
+        void shouldAnalyzeIpAddress() throws Exception {
+                IpAnalysisResponseDTO responseDTO = IpAnalysisResponseDTO.builder()
+                                .id(1L)
+                                .address("8.8.8.8")
+                                .vpn(false)
+                                .proxy(false)
+                                .tor(false)
+                                .datacenter(false)
+                                .anonymous(false)
+                                .riskLevel(RiskLevel.LOW)
+                                .source(AnalysisSource.EXTERNAL_API)
+                                .externalRiskScore(0)
+                                .externalType("Business")
+                                .externalProvider("Google LLC")
+                                .asn("AS15169")
+                                .country("United States")
+                                .city("Mountain View")
+                                .hostname("dns.google")
+                                .networkRange("8.8.8.0/24")
+                                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                                .build();
 
-        when(ipAnalysisService.analyze("8.8.8.8")).thenReturn(responseDTO);
+                when(ipAnalysisService.analyze("8.8.8.8")).thenReturn(responseDTO);
 
-        mockMvc.perform(post("/ips/8.8.8.8/analyze"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.address").value("8.8.8.8"))
-                .andExpect(jsonPath("$.vpn").value(false))
-                .andExpect(jsonPath("$.proxy").value(false))
-                .andExpect(jsonPath("$.tor").value(false))
-                .andExpect(jsonPath("$.datacenter").value(false))
-                .andExpect(jsonPath("$.anonymous").value(false))
-                .andExpect(jsonPath("$.riskLevel").value("LOW"))
-                .andExpect(jsonPath("$.source").value("EXTERNAL_API"))
-                .andExpect(jsonPath("$.externalRiskScore").value(0))
-                .andExpect(jsonPath("$.externalType").value("Business"))
-                .andExpect(jsonPath("$.externalProvider").value("Google LLC"))
-                .andExpect(jsonPath("$.asn").value("AS15169"))
-                .andExpect(jsonPath("$.country").value("United States"))
-                .andExpect(jsonPath("$.city").value("Mountain View"))
-                .andExpect(jsonPath("$.hostname").value("dns.google"))
-                .andExpect(jsonPath("$.networkRange").value("8.8.8.0/24"));
-    }
+                mockMvc.perform(post("/ips/8.8.8.8/analyze"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.address").value("8.8.8.8"))
+                                .andExpect(jsonPath("$.vpn").value(false))
+                                .andExpect(jsonPath("$.proxy").value(false))
+                                .andExpect(jsonPath("$.tor").value(false))
+                                .andExpect(jsonPath("$.datacenter").value(false))
+                                .andExpect(jsonPath("$.anonymous").value(false))
+                                .andExpect(jsonPath("$.riskLevel").value("LOW"))
+                                .andExpect(jsonPath("$.source").value("EXTERNAL_API"))
+                                .andExpect(jsonPath("$.externalRiskScore").value(0))
+                                .andExpect(jsonPath("$.externalType").value("Business"))
+                                .andExpect(jsonPath("$.externalProvider").value("Google LLC"))
+                                .andExpect(jsonPath("$.asn").value("AS15169"))
+                                .andExpect(jsonPath("$.country").value("United States"))
+                                .andExpect(jsonPath("$.city").value("Mountain View"))
+                                .andExpect(jsonPath("$.hostname").value("dns.google"))
+                                .andExpect(jsonPath("$.networkRange").value("8.8.8.0/24"));
+        }
 
-    @Test
-    void shouldAnalyzeIpAddressManually() throws Exception {
-        IpAnalysisResponseDTO responseDTO = IpAnalysisResponseDTO.builder()
-                .id(1L)
-                .address("45.90.28.1")
-                .vpn(true)
-                .proxy(false)
-                .tor(false)
-                .datacenter(false)
-                .anonymous(true)
-                .riskLevel(RiskLevel.MEDIUM)
-                .source(AnalysisSource.MANUAL_SIMULATION)
-                .externalRiskScore(null)
-                .externalType("Manual")
-                .externalProvider("Manual input")
-                .asn(null)
-                .country(null)
-                .city(null)
-                .hostname(null)
-                .networkRange(null)
-                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
-                .build();
+        @Test
+        void shouldAnalyzeIpAddressManually() throws Exception {
+                IpAnalysisResponseDTO responseDTO = IpAnalysisResponseDTO.builder()
+                                .id(1L)
+                                .address("45.90.28.1")
+                                .vpn(true)
+                                .proxy(false)
+                                .tor(false)
+                                .datacenter(false)
+                                .anonymous(true)
+                                .riskLevel(RiskLevel.MEDIUM)
+                                .source(AnalysisSource.MANUAL_SIMULATION)
+                                .externalRiskScore(null)
+                                .externalType("Manual")
+                                .externalProvider("Manual input")
+                                .asn(null)
+                                .country(null)
+                                .city(null)
+                                .hostname(null)
+                                .networkRange(null)
+                                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                                .build();
 
-        when(ipAnalysisService.analyzeManually(
-                org.mockito.ArgumentMatchers.eq("45.90.28.1"),
-                any(IpAnalysisManualRequestDTO.class))).thenReturn(responseDTO);
+                when(ipAnalysisService.analyzeManually(
+                                org.mockito.ArgumentMatchers.eq("45.90.28.1"),
+                                any(IpAnalysisManualRequestDTO.class))).thenReturn(responseDTO);
 
-        mockMvc.perform(post("/ips/45.90.28.1/analyze/manual")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                          "vpn": true,
-                          "proxy": false,
-                          "tor": false,
-                          "datacenter": false,
-                          "anonymous": true,
-                          "riskLevel": "MEDIUM"
-                        }
-                        """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.address").value("45.90.28.1"))
-                .andExpect(jsonPath("$.vpn").value(true))
-                .andExpect(jsonPath("$.proxy").value(false))
-                .andExpect(jsonPath("$.tor").value(false))
-                .andExpect(jsonPath("$.datacenter").value(false))
-                .andExpect(jsonPath("$.anonymous").value(true))
-                .andExpect(jsonPath("$.riskLevel").value("MEDIUM"))
-                .andExpect(jsonPath("$.source").value("MANUAL_SIMULATION"))
-                .andExpect(jsonPath("$.externalType").value("Manual"))
-                .andExpect(jsonPath("$.externalProvider").value("Manual input"));
-    }
+                mockMvc.perform(post("/ips/45.90.28.1/analyze/manual")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                                {
+                                                  "vpn": true,
+                                                  "proxy": false,
+                                                  "tor": false,
+                                                  "datacenter": false,
+                                                  "anonymous": true,
+                                                  "riskLevel": "MEDIUM"
+                                                }
+                                                """))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.address").value("45.90.28.1"))
+                                .andExpect(jsonPath("$.vpn").value(true))
+                                .andExpect(jsonPath("$.proxy").value(false))
+                                .andExpect(jsonPath("$.tor").value(false))
+                                .andExpect(jsonPath("$.datacenter").value(false))
+                                .andExpect(jsonPath("$.anonymous").value(true))
+                                .andExpect(jsonPath("$.riskLevel").value("MEDIUM"))
+                                .andExpect(jsonPath("$.source").value("MANUAL_SIMULATION"))
+                                .andExpect(jsonPath("$.externalType").value("Manual"))
+                                .andExpect(jsonPath("$.externalProvider").value("Manual input"));
+        }
 
-    @Test
-    void shouldFindAnalysesByIpAddress() throws Exception {
-        List<IpAnalysisResponseDTO> analyses = List.of(
-                IpAnalysisResponseDTO.builder()
-                        .id(1L)
-                        .address("8.8.8.8")
-                        .vpn(false)
-                        .proxy(false)
-                        .tor(false)
-                        .datacenter(false)
-                        .anonymous(false)
-                        .riskLevel(RiskLevel.LOW)
-                        .source(AnalysisSource.EXTERNAL_API)
-                        .externalRiskScore(0)
-                        .externalType("Business")
-                        .externalProvider("Google LLC")
-                        .asn("AS15169")
-                        .country("United States")
-                        .city("Mountain View")
-                        .hostname("dns.google")
-                        .networkRange("8.8.8.0/24")
-                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
-                        .build(),
-                IpAnalysisResponseDTO.builder()
-                        .id(2L)
-                        .address("8.8.8.8")
-                        .vpn(false)
-                        .proxy(false)
-                        .tor(false)
-                        .datacenter(true)
-                        .anonymous(false)
-                        .riskLevel(RiskLevel.ATTENTION)
-                        .source(AnalysisSource.MANUAL_SIMULATION)
-                        .externalRiskScore(null)
-                        .externalType("Manual")
-                        .externalProvider("Manual input")
-                        .asn(null)
-                        .country(null)
-                        .city(null)
-                        .hostname(null)
-                        .networkRange(null)
-                        .analyzedAt(LocalDateTime.of(2026, 6, 2, 16, 0))
-                        .build());
+        @Test
+        void shouldFindAnalysesByIpAddress() throws Exception {
+                List<IpAnalysisResponseDTO> analyses = List.of(
+                                IpAnalysisResponseDTO.builder()
+                                                .id(1L)
+                                                .address("8.8.8.8")
+                                                .vpn(false)
+                                                .proxy(false)
+                                                .tor(false)
+                                                .datacenter(false)
+                                                .anonymous(false)
+                                                .riskLevel(RiskLevel.LOW)
+                                                .source(AnalysisSource.EXTERNAL_API)
+                                                .externalRiskScore(0)
+                                                .externalType("Business")
+                                                .externalProvider("Google LLC")
+                                                .asn("AS15169")
+                                                .country("United States")
+                                                .city("Mountain View")
+                                                .hostname("dns.google")
+                                                .networkRange("8.8.8.0/24")
+                                                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                                                .build(),
+                                IpAnalysisResponseDTO.builder()
+                                                .id(2L)
+                                                .address("8.8.8.8")
+                                                .vpn(false)
+                                                .proxy(false)
+                                                .tor(false)
+                                                .datacenter(true)
+                                                .anonymous(false)
+                                                .riskLevel(RiskLevel.ATTENTION)
+                                                .source(AnalysisSource.MANUAL_SIMULATION)
+                                                .externalRiskScore(null)
+                                                .externalType("Manual")
+                                                .externalProvider("Manual input")
+                                                .asn(null)
+                                                .country(null)
+                                                .city(null)
+                                                .hostname(null)
+                                                .networkRange(null)
+                                                .analyzedAt(LocalDateTime.of(2026, 6, 2, 16, 0))
+                                                .build());
 
-        when(ipAnalysisService.findByAddress("8.8.8.8")).thenReturn(analyses);
+                when(ipAnalysisService.findByAddress("8.8.8.8")).thenReturn(analyses);
 
-        mockMvc.perform(get("/ips/{address}/analyses", "8.8.8.8"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].address").value("8.8.8.8"))
-                .andExpect(jsonPath("$[0].riskLevel").value("LOW"))
-                .andExpect(jsonPath("$[0].source").value("EXTERNAL_API"))
-                .andExpect(jsonPath("$[0].externalProvider").value("Google LLC"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].address").value("8.8.8.8"))
-                .andExpect(jsonPath("$[1].datacenter").value(true))
-                .andExpect(jsonPath("$[1].riskLevel").value("ATTENTION"))
-                .andExpect(jsonPath("$[1].source").value("MANUAL_SIMULATION"))
-                .andExpect(jsonPath("$[1].externalProvider").value("Manual input"));
-    }
+                mockMvc.perform(get("/ips/{address}/analyses", "8.8.8.8"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$[0].id").value(1))
+                                .andExpect(jsonPath("$[0].address").value("8.8.8.8"))
+                                .andExpect(jsonPath("$[0].riskLevel").value("LOW"))
+                                .andExpect(jsonPath("$[0].source").value("EXTERNAL_API"))
+                                .andExpect(jsonPath("$[0].externalProvider").value("Google LLC"))
+                                .andExpect(jsonPath("$[1].id").value(2))
+                                .andExpect(jsonPath("$[1].address").value("8.8.8.8"))
+                                .andExpect(jsonPath("$[1].datacenter").value(true))
+                                .andExpect(jsonPath("$[1].riskLevel").value("ATTENTION"))
+                                .andExpect(jsonPath("$[1].source").value("MANUAL_SIMULATION"))
+                                .andExpect(jsonPath("$[1].externalProvider").value("Manual input"));
+        }
 
-    @Test
-    void shouldReturnEmptyListWhenIpAddressHasNoAnalyses() throws Exception {
-        when(ipAnalysisService.findByAddress("9.9.9.9")).thenReturn(List.of());
+        @Test
+        void shouldReturnEmptyListWhenIpAddressHasNoAnalyses() throws Exception {
+                when(ipAnalysisService.findByAddress("9.9.9.9")).thenReturn(List.of());
 
-        mockMvc.perform(get("/ips/{address}/analyses", "9.9.9.9"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());
-    }
+                mockMvc.perform(get("/ips/{address}/analyses", "9.9.9.9"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$").isArray())
+                                .andExpect(jsonPath("$").isEmpty());
+        }
+
+        @Test
+        void shouldAnalyzeActiveIpAddresses() throws Exception {
+                BatchAnalysisResponseDTO responseDTO = BatchAnalysisResponseDTO.builder()
+                                .totalProcessed(2)
+                                .successCount(2)
+                                .errorCount(0)
+                                .analyses(List.of(
+                                                IpAnalysisResponseDTO.builder()
+                                                                .id(1L)
+                                                                .address("8.8.8.8")
+                                                                .vpn(false)
+                                                                .proxy(false)
+                                                                .tor(false)
+                                                                .datacenter(false)
+                                                                .anonymous(false)
+                                                                .riskLevel(RiskLevel.LOW)
+                                                                .source(AnalysisSource.EXTERNAL_API)
+                                                                .externalRiskScore(0)
+                                                                .externalType("Business")
+                                                                .externalProvider("Google LLC")
+                                                                .asn("AS15169")
+                                                                .country("United States")
+                                                                .city("Mountain View")
+                                                                .hostname("dns.google")
+                                                                .networkRange("8.8.8.0/24")
+                                                                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                                                                .build(),
+                                                IpAnalysisResponseDTO.builder()
+                                                                .id(2L)
+                                                                .address("1.1.1.1")
+                                                                .vpn(false)
+                                                                .proxy(false)
+                                                                .tor(false)
+                                                                .datacenter(false)
+                                                                .anonymous(false)
+                                                                .riskLevel(RiskLevel.LOW)
+                                                                .source(AnalysisSource.EXTERNAL_API)
+                                                                .externalRiskScore(0)
+                                                                .externalType("Business")
+                                                                .externalProvider("Cloudflare, Inc.")
+                                                                .asn("AS13335")
+                                                                .country("Australia")
+                                                                .city("Sydney")
+                                                                .hostname("one.one.one.one")
+                                                                .networkRange("1.1.1.0/24")
+                                                                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 5))
+                                                                .build()))
+                                .errors(List.of())
+                                .build();
+
+                when(ipAnalysisService.analyzeActiveIpAddresses()).thenReturn(responseDTO);
+
+                mockMvc.perform(post("/ips/active/analyze"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.totalProcessed").value(2))
+                                .andExpect(jsonPath("$.successCount").value(2))
+                                .andExpect(jsonPath("$.errorCount").value(0))
+                                .andExpect(jsonPath("$.analyses[0].address").value("8.8.8.8"))
+                                .andExpect(jsonPath("$.analyses[0].externalProvider").value("Google LLC"))
+                                .andExpect(jsonPath("$.analyses[1].address").value("1.1.1.1"))
+                                .andExpect(jsonPath("$.analyses[1].externalProvider").value("Cloudflare, Inc."))
+                                .andExpect(jsonPath("$.errors").isArray())
+                                .andExpect(jsonPath("$.errors").isEmpty());
+        }
+
+        @Test
+        void shouldReturnPartialErrorsWhenAnalyzingActiveIpAddresses() throws Exception {
+                BatchAnalysisResponseDTO responseDTO = BatchAnalysisResponseDTO.builder()
+                                .totalProcessed(2)
+                                .successCount(1)
+                                .errorCount(1)
+                                .analyses(List.of(
+                                                IpAnalysisResponseDTO.builder()
+                                                                .id(1L)
+                                                                .address("8.8.8.8")
+                                                                .vpn(false)
+                                                                .proxy(false)
+                                                                .tor(false)
+                                                                .datacenter(false)
+                                                                .anonymous(false)
+                                                                .riskLevel(RiskLevel.LOW)
+                                                                .source(AnalysisSource.EXTERNAL_API)
+                                                                .externalRiskScore(0)
+                                                                .externalType("Business")
+                                                                .externalProvider("Google LLC")
+                                                                .asn("AS15169")
+                                                                .country("United States")
+                                                                .city("Mountain View")
+                                                                .hostname("dns.google")
+                                                                .networkRange("8.8.8.0/24")
+                                                                .analyzedAt(LocalDateTime.of(2026, 6, 2, 15, 0))
+                                                                .build()))
+                                .errors(List.of(
+                                                BatchAnalysisErrorDTO.builder()
+                                                                .address("999.999.999.999")
+                                                                .message("Invalid IP address")
+                                                                .build()))
+                                .build();
+
+                when(ipAnalysisService.analyzeActiveIpAddresses()).thenReturn(responseDTO);
+
+                mockMvc.perform(post("/ips/active/analyze"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.totalProcessed").value(2))
+                                .andExpect(jsonPath("$.successCount").value(1))
+                                .andExpect(jsonPath("$.errorCount").value(1))
+                                .andExpect(jsonPath("$.analyses[0].address").value("8.8.8.8"))
+                                .andExpect(jsonPath("$.errors[0].address").value("999.999.999.999"))
+                                .andExpect(jsonPath("$.errors[0].message").value("Invalid IP address"));
+        }
 }
